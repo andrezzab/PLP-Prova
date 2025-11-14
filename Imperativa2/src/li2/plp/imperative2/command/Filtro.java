@@ -1,104 +1,101 @@
 package li2.plp.imperative2.command;
 
-import java.util.ArrayList;
-import java.util.List;
-import li2.plp.expressions2.expression.Expressao;
+import li2.plp.expressions1.util.Tipo;
 import li2.plp.expressions2.expression.Id;
 import li2.plp.expressions2.expression.Valor;
+import li2.plp.expressions2.expression.Expressao;
 import li2.plp.expressions2.expression.ValorBooleano;
-import li2.plp.expressions2.expression.ValorInteiro;
-import li2.plp.expressions2.expression.ValorString;
-import li2.plp.expressions2.memory.VariavelNaoDeclaradaException;
-import li2.plp.expressions2.memory.IdentificadorJaDeclaradoException;
-import li2.plp.expressions2.memory.IdentificadorNaoDeclaradoException;
-import li2.plp.imperative1.memory.EntradaVaziaException;
-import li2.plp.imperative1.memory.ErroTipoEntradaException;
+import li2.plp.imperative1.command.Comando;
 import li2.plp.imperative1.memory.AmbienteCompilacaoImperativa;
 import li2.plp.imperative1.memory.AmbienteExecucaoImperativa;
 import li2.plp.imperative2.memory.AmbienteExecucaoImperativa2;
+import li2.plp.expressions2.expression.ValorDataFrame;
 
-public class Filtro extends AnaliseLinhas {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
-    // O idCsvOrigem agora é herdado da classe mãe 'ComandoDeAnalise'
-    private Id idCsvDestino;
+/**
+ * Implementa o comando FILTER...WHERE...
+ * Este comando usa a lógica de "matriz mxn" (ValorDataFrame)
+ * e o avaliador de expressões da I2.
+ */
+public class Filtro implements Comando {
+
+    private Id idDataFrameOriginal;
+    private Id idDataFrameNovo;
     private Expressao condicao;
 
-    public Filtro(Id idVariavelCsv, Id idCsvDestino, Expressao condicao) {
-        // Chama o construtor da classe mãe para inicializar o idCsvOrigem
-        super(idVariavelCsv); 
-        this.idCsvDestino = idCsvDestino;
+    /**
+     * Construtor que o parser (Imp2Parser.jj) vai chamar.
+     * @param idOrigem O Id da variável do DataFrame original (ex: "func")
+     * @param idDestino O Id para o novo DataFrame filtrado (ex: "seniores")
+     * @param condicao A expressão de filtro (ex: "idade > 30")
+     */
+    public Filtro(Id idOrigem, Id idDestino, Expressao condicao) {
+        this.idDataFrameOriginal = idOrigem;
+        this.idDataFrameNovo = idDestino;
         this.condicao = condicao;
     }
 
     @Override
-    public AmbienteExecucaoImperativa executar(AmbienteExecucaoImperativa amb)
-        throws VariavelNaoDeclaradaException, IdentificadorJaDeclaradoException,
-        IdentificadorNaoDeclaradoException, EntradaVaziaException, ErroTipoEntradaException {
+    public AmbienteExecucaoImperativa executar(AmbienteExecucaoImperativa amb) throws RuntimeException {
+        // 1. Faz o cast para o ambiente correto
         AmbienteExecucaoImperativa2 ambiente = (AmbienteExecucaoImperativa2) amb;
 
-        String[] linhas = getLinhasDoCsv(ambiente);
-
-        if (linhas.length < 2) {
-            System.out.println("Aviso: CSV de origem '" + idVariavelCsv + "' está vazio ou não tem dados.");
-            return ambiente;
+        // 2. Pega o DataFrame original do ambiente
+        Valor val = ambiente.get(idDataFrameOriginal);
+        if (!(val instanceof ValorDataFrame)) {
+            throw new RuntimeException("Erro: Variável '" + idDataFrameOriginal.getIdName() + "' não é um DataFrame.");
         }
+        ValorDataFrame dfOriginal = (ValorDataFrame) val;
 
-        // 2. Preparar o novo CSV e encontrar os nomes das colunas.
-        String cabecalho = linhas[0];
-        String[] nomesColunas = cabecalho.split(",");
-        List<String> linhasFiltradas = new ArrayList<>();
-        linhasFiltradas.add(cabecalho); // O cabeçalho é sempre mantido.
+        // 3. Prepara para criar o novo DataFrame
+        List<Map<String, Valor>> linhasFiltradas = new ArrayList<>();
+        Map<String, Tipo> schema = dfOriginal.getSchema();
 
-        // 3. Iterar sobre cada linha de dados para avaliar a condição.
-        for (int i = 1; i < linhas.length; i++) {
-            String[] celulas = linhas[i].split(",");
+        // 4. Itera pelas linhas do DataFrame original
+        for (Map<String, Valor> linha : dfOriginal.getRows()) {
             
-            // Cria um novo escopo temporário para a linha atual.
-            ambiente.incrementa(); 
-
-            // Mapeia cada coluna como uma variável local neste escopo.
-            for (int j = 0; j < nomesColunas.length; j++) {
-                if (j < celulas.length) {
-                    String valorCelula = celulas[j].trim();
-                    Id idColuna = new Id(nomesColunas[j].trim());
-                    
-                    // Tenta converter para Inteiro, senão, mantém como String.
-                    try {
-                        ambiente.map(idColuna, new ValorInteiro(Integer.parseInt(valorCelula)));
-                    } catch (NumberFormatException e) {
-                        ambiente.map(idColuna, new ValorString(valorCelula));
-                    }
-                }
+            // 5. A MÁGICA: Injeta as colunas da linha no ambiente
+            ambiente.incrementa(); // Cria novo escopo
+            for (String nomeColuna : schema.keySet()) {
+                // Mapeia a coluna (ex: "idade") para seu valor (ex: ValorInteiro(25))
+                ambiente.map(new Id(nomeColuna), linha.get(nomeColuna));
             }
 
-            // AVALIA a expressão de filtro no contexto desta linha.
+            // 6. Avalia a expressão (ex: "idade > 30") NESSE ambiente
             Valor resultado = condicao.avaliar(ambiente);
-
-            // Se a condição for verdadeira, adiciona a linha ao resultado.
-            if (resultado instanceof ValorBooleano && ((ValorBooleano) resultado).valor()) {
-                linhasFiltradas.add(linhas[i]);
+            if (!(resultado instanceof ValorBooleano)) {
+                 ambiente.restaura(); // Limpa o escopo antes de lançar o erro
+                 throw new RuntimeException("Erro: A expressão WHERE deve resultar em um booleano.");
             }
+            boolean condicaoSatisfeita = ((ValorBooleano) resultado).valor();
 
-            // Descarta o escopo temporário da linha.
+            // 7. Limpa o ambiente (remove o escopo da linha)
             ambiente.restaura();
+
+            // 8. Se a condição for verdadeira, salva a linha
+            if (condicaoSatisfeita) {
+                linhasFiltradas.add(linha);
+            }
         }
 
-        // 4. Salvar o novo CSV filtrado na variável de destino.
-        String novoConteudoCsv = String.join("\n", linhasFiltradas);
-        ambiente.map(idCsvDestino, new ValorString(novoConteudoCsv));
+        // 9. Cria o novo ValorDataFrame com as linhas filtradas
+        ValorDataFrame dfNovo = dfOriginal.createNew(linhasFiltradas);
         
-        System.out.println("\n--- Filtro Aplicado ---");
-        System.out.println("Dados de '" + idVariavelCsv + "' filtrados para '" + idCsvDestino + "'.");
-        System.out.println((linhasFiltradas.size() - 1) + " registros correspondem à condição.");
-        System.out.println("-----------------------\n");
+        // 10. Mapeia o novo DataFrame no ambiente
+        ambiente.map(idDataFrameNovo, dfNovo);
 
+        System.out.println(">> Filtro aplicado. Novo DataFrame '" + idDataFrameNovo.getIdName() + "' criado com " + linhasFiltradas.size() + " linhas.");
+
+        // 11. Retorna o ambiente modificado
         return ambiente;
     }
 
     @Override
-    public boolean checaTipo(AmbienteCompilacaoImperativa amb)
-        throws IdentificadorJaDeclaradoException, IdentificadorNaoDeclaradoException,
-        EntradaVaziaException {
+    public boolean checaTipo(AmbienteCompilacaoImperativa amb) throws RuntimeException {
+        // TODO: Implementar checagem de tipo
         return true;
     }
 }

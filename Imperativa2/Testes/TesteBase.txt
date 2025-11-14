@@ -1,14 +1,28 @@
 // Primeiro, carregue o CSV para a variável 'dados'
 LOAD "Testes/csvs/teste_drop.csv" AS dados;
 
-// Em seguida, execute as estatísticas na coluna 'idade' da variável 'dados'
-STATS dados ON "idade";
+// Em seguida, execute as estatísticas (usando a nova sintaxe 'SHOW MEAN ...')
+SHOW MEAN dados.idade;
+SHOW MEDIAN dados.salario;
+SHOW STD dados.idade;
+SHOW VARIANCE dados.salario;
+SHOW MIN dados.salario;
+SHOW MAX dados.salario;
+SHOW RANGE dados.idade;
+SHOW QUARTILES dados.salario;
+SHOW MODE dados.salario;
 
-// Você também pode calcular para outra coluna
-STATS dados ON "salario";
+// 1. Conta quantos funcionários existem (usando 'COUNT')
+COUNT dados AS total_linhas;
 
-// 1. Conta quantos funcionários existem no total
-COUNT dados;
+// Mostra a variável que acabou de ser criada
+SHOW total_linhas;
 
-// 2. Filtra apenas os funcionários de "Recife" e salva em uma nova variável
-FILTER dados INTO funcionarios_recife WHERE cidade == "recife"
+// 2. Filtra (usando a sintaxe 'FILTER...INTO...WHERE')
+FILTER dados INTO funcionarios_seniores WHERE idade != 30;
+
+// Mostra o resultado do filtro
+SHOW funcionarios_seniores LIMIT 5;
+
+// 3. Salva o novo DataFrame em um arquivo
+SAVE funcionarios_seniores AS "Testes/results/funcionarios_seniores.csv"

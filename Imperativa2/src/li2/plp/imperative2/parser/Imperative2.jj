@@ -19,83 +19,123 @@ import li2.plp.imperative2.declaration.*;
 import li2.plp.imperative2.memory.*;
 import java.util.*;
 
+// Imports para as classes de Valor e Expressão que o parser vai criar
+import li2.plp.expressions2.expression.ValorString;
+import li2.plp.expressions2.expression.ValorInteiro;
+import li2.plp.expressions2.expression.ValorBooleano;
+import li2.plp.expressions2.expression.ValorDouble; // Adicionado
+import li2.plp.expressions2.expression.Id;
+import li2.plp.expressions2.expression.ExpMenos;
+import li2.plp.expressions2.expression.ExpNot;
+import li2.plp.expressions2.expression.ExpLength;
+import li2.plp.expressions2.expression.ExpSoma;
+import li2.plp.expressions2.expression.ExpSub;
+import li2.plp.expressions2.expression.ExpAnd;
+import li2.plp.expressions2.expression.ExpOr;
+import li2.plp.expressions2.expression.ExpEquals;
+import li2.plp.expressions2.expression.ExpConcat;
+
+// Imports para as novas classes de comando da DSL
+import li2.plp.imperative2.command.Load;
+import li2.plp.imperative2.command.Mean;
+import li2.plp.imperative2.command.Median;
+import li2.plp.imperative2.command.Mode;
+import li2.plp.imperative2.command.Std;
+import li2.plp.imperative2.command.Variance;
+import li2.plp.imperative2.command.Min;
+import li2.plp.imperative2.command.Max;
+import li2.plp.imperative2.command.Range;
+import li2.plp.imperative2.command.Quartiles;
+import li2.plp.imperative2.command.Contagem;
+import li2.plp.imperative2.command.Filtro;
+import li2.plp.imperative2.command.Show;
+import li2.plp.imperative2.command.Save;
+// import li2.plp.imperative2.command.Stats; // Não mais necessário
+import li2.plp.imperative2.command.VarColuna;
+
+// Imports para as novas classes de Expressão de Comparação
+import li2.plp.expressions2.expression.ExpGt;
+import li2.plp.expressions2.expression.ExpLt;
+import li2.plp.expressions2.expression.ExpGe;
+import li2.plp.expressions2.expression.ExpLe;
+import li2.plp.expressions2.expression.ExpNe;
+
+
 public class Imp2Parser {
 
     public static void main(String args[]) {
-	    Imp2Parser parser;
-	    ListaValor entrada = new ListaValor();
-	    if (args.length == 0) {
-	    	System.out.println("Imperativa 2 PLP Parser Version 0.0.1:  Reading from standard input . . .");
-	    	parser = new Imp2Parser(System.in);
-	    } else{
-	    	System.out.println("Imperativa 2 PLP Parser Version 0.0.1:  Reading from file " + args[0] + " . . .");
-	    	try {
-	    		parser = new Imp2Parser(new java.io.FileInputStream(args[0]));
-	    	} catch (java.io.FileNotFoundException e) {
-	        	System.out.println("Java Parser Version 1.0.2:  File " + args[0] + " not found.");
-	        	return;
-	    	}
-	    	
-	    	List valores = new LinkedList();
-	    	for(int i=1;i<args.length;i++)
-	    	{
-	    	 	String parametro = args[i];
-	    	 	
-	    	 	try { 
-	    	 		Integer inteiro = Integer.valueOf(parametro);
-	    	 		valores.add(new ValorInteiro(inteiro.intValue()));
-	    	 		continue;
-	    	 	} catch(NumberFormatException e) {
-	    	 		
-	    	 	}
-	    	 	
-	    	 	if(parametro.equalsIgnoreCase("true") 
-	    	 	    || parametro.equalsIgnoreCase("false")) {
-	    	 		Boolean booleano = Boolean.valueOf(parametro);
-	    	 		valores.add(new ValorBooleano(booleano.booleanValue()));
-	    	 	} else {
-	    	 	    valores.add(new ValorString(parametro));
-	    	 	}			
-	    	}
-	    	  entrada = criaListaValor(valores);
-	    } 
-	    
-	    try {
-        Programa programa = parser.Input();
-        System.out.println("Imperativa 2 PLP Parser Version 0.0.1:  Imperativa2 program parsed successfully.");
+        Imp2Parser parser;
+        ListaValor entrada = new ListaValor();
+        if (args.length == 0) {
+            System.out.println("Imperativa 2 PLP Parser Version 0.0.1:  Reading from standard input . . .");
+            parser = new Imp2Parser(System.in);
+        } else{
+            System.out.println("Imperativa 2 PLP Parser Version 0.0.1:  Reading from file " + args[0] + " . . .");
+            try {
+                parser = new Imp2Parser(new java.io.FileInputStream(args[0]));
+            } catch (java.io.FileNotFoundException e) {
+                System.out.println("Java Parser Version 1.0.2:  File " + args[0] + " not found.");
+                return;
+            }
+            
+            List valores = new LinkedList();
+            for(int i=1;i<args.length;i++)
+            {
+                String parametro = args[i];
+                
+                try { 
+                    Integer inteiro = Integer.valueOf(parametro);
+                    valores.add(new ValorInteiro(inteiro.intValue()));
+                    continue;
+                } catch(NumberFormatException e) {
+                    
+                }
+                
+                if(parametro.equalsIgnoreCase("true") 
+                    || parametro.equalsIgnoreCase("false")) {
+                    Boolean booleano = Boolean.valueOf(parametro);
+                    valores.add(new ValorBooleano(booleano.booleanValue()));
+                } else {
+                    valores.add(new ValorString(parametro));
+                }
+            }
+             entrada = criaListaValor(valores);
+        } 
         
-        if(programa.checaTipo(new ContextoCompilacaoImperativa(entrada))) {
+        try {
+            Programa programa = parser.Input();
+            System.out.println("Imperativa 2 PLP Parser Version 0.0.1:  Imperativa2 program parsed successfully.");
             
-            // --- CORREÇÃO APLICADA AQUI ---
-            
-            // 1. Crie o ambiente de execução PRIMEIRO.
-            AmbienteExecucaoImperativa2 ambiente = new ContextoExecucaoImperativa2(entrada);
-            
-            // 2. INICIALIZE O ESCOPO GLOBAL. (O passo que faltava!)
-            ambiente.incrementa();
-            
-            // 3. Execute o programa com o ambiente já preparado.
-            ListaValor saida = programa.executar(ambiente);
-            
-            System.out.println(saida);
+            if(programa.checaTipo(new ContextoCompilacaoImperativa(entrada))) {
+                
+                // 1. Crie o ambiente de execução PRIMEIRO.
+                AmbienteExecucaoImperativa2 ambiente = new ContextoExecucaoImperativa2(entrada);
+                
+                // 2. INICIALIZE O ESCOPO GLOBAL. (O passo que faltava!)
+                ambiente.incrementa();
+                
+                // 3. Execute o programa com o ambiente já preparado.
+                ListaValor saida = programa.executar(ambiente);
+                
+                System.out.println(saida);
+            }
+            else {
+                System.out.println("Erro de tipo");
+            }
+        } catch (Exception e) {
+            System.out.println("Imperativa 2 PLP Parser Version 0.0.1:  Encountered errors during parse.");
+            e.printStackTrace();
         }
-        else {
-            System.out.println("Erro de tipo");
-        }
-    } catch (Exception e) {
-        System.out.println("Imperativa 2 PLP Parser Version 0.0.1:  Encountered errors during parse.");
-        e.printStackTrace();
     }
-	}
-	
-	public static ListaValor criaListaValor(List valores) {
-		if(valores.size() == 0) {
-			return new ListaValor();
-		}
-	
-		Valor primeiro = (Valor) valores.get(0);
-		valores.remove(0);
-		return new ListaValor(primeiro, criaListaValor(valores));
+    
+    public static ListaValor criaListaValor(List valores) {
+        if(valores.size() == 0) {
+            return new ListaValor();
+        }
+    
+        Valor primeiro = (Valor) valores.get(0);
+        valores.remove(0);
+        return new ListaValor(primeiro, criaListaValor(valores));
     }
 }
 
@@ -117,33 +157,33 @@ SPECIAL_TOKEN : /* COMMENTS */
 | <MULTI_LINE_COMMENT: "/*" (~["*"])* "*" ("*" | (~["*","/"] (~["*"])* "*"))* "/">
 }
 
-TOKEN : /* TOKENS DE EXPRESSOES 1 */
+TOKEN : /* TOKENS DE EXPRESSOES 1 (MAIÚSCULAS) */
 {
-  < AND: "and" >
-| < OR  : "or" >
-| < NOT : "not" >
-| < LENGTH      : "length" > 
-| < TRUE        : "true" >
-| < FALSE       : "false" >
+  < AND: "AND" >
+| < OR  : "OR" >
+| < NOT : "NOT" >
+| < LENGTH       : "LENGTH" > 
+| < TRUE         : "TRUE" >
+| < FALSE        : "FALSE" >
 }
 
-TOKEN : /* TOKENS DE IMPERATIVA 1 */
+TOKEN : /* TOKENS DE IMPERATIVA 1 (MAIÚSCULAS) */
 {
-  < VAR: "var" >
-| < COMAND_SKIP: "skip" >
-| < WHILE: "while" >
-| < DO: "do" >
-| < READ: "read" >
-| < WRITE: "write" >
-| < IF: "if" >
-| < THEN: "then" >
-| < ELSE: "else" >
+  < VAR: "VAR" >
+| < COMAND_SKIP: "SKIP" >
+| < WHILE: "WHILE" >
+| < DO: "DO" >
+| < READ: "READ" >
+| < WRITE: "WRITE" >
+| < IF: "IF" >
+| < THEN: "THEN" >
+| < ELSE: "ELSE" >
 }
 
-TOKEN : /* TOKENS DE IMPERATIVA 2 */
+TOKEN : /* TOKENS DE IMPERATIVA 2 (MAIÚSCULAS) */
 {
-  < PROC: "proc" >
-| < CALL: "call" >
+  < PROC: "PROC" >
+| < CALL: "CALL" >
 | < LOAD: "LOAD" >
 | < AS: "AS" >
 | < MEAN: "MEAN" >
@@ -156,22 +196,21 @@ TOKEN : /* TOKENS DE IMPERATIVA 2 */
 | < RANGE: "RANGE" >
 | < QUARTILES: "QUARTILES" >
 | < SHOW: "SHOW" >
-| < STATS: "STATS" >
+// | < STATS: "STATS" > // REMOVIDO
 | < LIMIT: "LIMIT" >
 | < SAVE: "SAVE" >
-| < ON : "ON" >
+// | < ON : "ON" > // REMOVIDO
 | < COUNT: "COUNT" >
 | < FILTER: "FILTER" >
 | < INTO: "INTO" >
 | < WHERE: "WHERE" >
 }
 
-TOKEN : /* TOKENS DOS POSS�VEIS TIPOS */
+TOKEN : /* TOKENS DOS POSSIVEIS TIPOS (MAIÚSCULAS) */
 {
-  < INT : "int" >
-| < BOOLEAN  : "boolean" >
-| < STRING  : "string" >
-
+  < INT : "INT" >
+| < BOOLEAN  : "BOOLEAN" >
+| < STRING  : "STRING" >
 }
 
 TOKEN : /* LITERALS */
@@ -182,7 +221,7 @@ TOKEN : /* LITERALS */
       | <OCTAL_LITERAL> (["l","L"])?
   >
 |
-  < #DECIMAL_LITERAL: ["1"-"9"] (["0"-"9"])* >
+  < #DECIMAL_LITERAL: ["1"-"9"] (["0"-"9"])* | "0" >
 |
   < #HEX_LITERAL: "0" ["x","X"] (["0"-"9","a"-"f","A"-"F"])+ >
 |
@@ -200,6 +239,16 @@ TOKEN : /* LITERALS */
       )*
       "\""
   >
+| 
+  < FLOATING_POINT_LITERAL:
+        (["0"-"9"])+ "." (["0"-"9"])* (<EXPONENT>)? (["f","F","d","D"])?
+      | "." (["0"-"9"])+ (<EXPONENT>)? (["f","F","d","D"])?
+      | (["0"-"9"])+ <EXPONENT> (["f","F","d","D"])?
+      | (["0"-"9"])+ (<EXPONENT>)? ["f","F","d","D"]
+  >
+|
+  < #EXPONENT: ["e","E"] (["+","-"])? (["0"-"9"])+ >
+
 }
 
 TOKEN : /* IDENTIFIERS */
@@ -208,39 +257,39 @@ TOKEN : /* IDENTIFIERS */
 |
   < #LETTER:
       [
-       "\u0024",
-       "\u0041"-"\u005a",
-       "\u005f",
-       "\u0061"-"\u007a",
-       "\u00c0"-"\u00d6",
-       "\u00d8"-"\u00f6",
-       "\u00f8"-"\u00ff",
-       "\u0100"-"\u1fff",
-       "\u3040"-"\u318f",
-       "\u3300"-"\u337f",
-       "\u3400"-"\u3d2d",
-       "\u4e00"-"\u9fff",
-       "\uf900"-"\ufaff"
+        "\u0024",
+        "\u0041"-"\u005a", // A-Z (permite maiúsculas nos Ids)
+        "\u005f",
+        "\u0061"-"\u007a", // a-z
+        "\u00c0"-"\u00d6",
+        "\u00d8"-"\u00f6",
+        "\u00f8"-"\u00ff",
+        "\u0100"-"\u1fff",
+        "\u3040"-"\u318f",
+        "\u3300"-"\u337f",
+        "\u3400"-"\u3d2d",
+        "\u4e00"-"\u9fff",
+        "\uf900"-"\ufaff"
       ]
   >
 |
   < #DIGIT:
       [
-       "\u0030"-"\u0039",
-       "\u0660"-"\u0669",
-       "\u06f0"-"\u06f9",
-       "\u0966"-"\u096f",
-       "\u09e6"-"\u09ef",
-       "\u0a66"-"\u0a6f",
-       "\u0ae6"-"\u0aef",
-       "\u0b66"-"\u0b6f",
-       "\u0be7"-"\u0bef",
-       "\u0c66"-"\u0c6f",
-       "\u0ce6"-"\u0cef",
-       "\u0d66"-"\u0d6f",
-       "\u0e50"-"\u0e59",
-       "\u0ed0"-"\u0ed9",
-       "\u1040"-"\u1049"
+        "\u0030"-"\u0039",
+        "\u0660"-"\u0669",
+        "\u06f0"-"\u06f9",
+        "\u0966"-"\u096f",
+        "\u09e6"-"\u09ef",
+        "\u0a66"-"\u0a6f",
+        "\u0ae6"-"\u0aef",
+        "\u0b66"-"\u0b6f",
+        "\u0be7"-"\u0bef",
+        "\u0c66"-"\u0c6f",
+        "\u0ce6"-"\u0cef",
+        "\u0d66"-"\u0d6f",
+        "\u0e50"-"\u0e59",
+        "\u0ed0"-"\u0ed9",
+        "\u1040"-"\u1049"
       ]
   >
 }
@@ -285,6 +334,12 @@ TOKEN : /* OPERATORS */
 | < REM: "%" >
 }
 
+/*
+ * ========================================================
+ * REGRAS DE PARSING
+ * ========================================================
+ */
+
 Programa Input() :
 { 
     Programa retorno;
@@ -292,31 +347,35 @@ Programa Input() :
 {
    retorno = PPrograma() <EOF>
    { 
-	return retorno; 
+    return retorno; 
    }
 }
 
 Programa PPrograma() :
 {
-	Comando retorno;
+    Comando retorno;
 }
 {
-	retorno = PComando()
-	{
-		return new Programa(retorno);
-	}
+    // Um programa é um único comando (que pode ser um bloco {...} ou uma sequência)
+    retorno = PComando()
+    {
+        return new Programa(retorno);
+    }
 }
 
 Comando PComando() :
 {
-	Comando retorno;
+    Comando retorno;
 }
 {
     (
+        // Uma sequência de comandos (c1; c2; c3)
         LOOKAHEAD (PComandoSimples() <SEMICOLON>)
-        	retorno = PSequenciaComando()
-      | retorno = PComandoSimples()
-   	)
+            retorno = PSequenciaComando()
+      | 
+        // Apenas um comando simples (sem ;)
+        retorno = PComandoSimples()
+    )
     {
         return retorno;
     }
@@ -324,112 +383,121 @@ Comando PComando() :
 
 SequenciaComando PSequenciaComando() :
 {
-	Comando c1;
-	Comando c2;
+    Comando c1;
+    Comando c2;
 }
 {
-	c1 = PComandoSimples()
-	<SEMICOLON>
-	c2 = PComando()
-	{return new SequenciaComando(c1, c2);}
+    c1 = PComandoSimples()
+    <SEMICOLON>
+    c2 = PComando()
+    {return new SequenciaComando(c1, c2);}
 }
 
 IO PIO() :
 {
-	IO retorno;
+    IO retorno;
 }
 {
-	(
-		  retorno = PRead()
-		| retorno = PWrite()
-	)
-	{return retorno;}
+    (
+          retorno = PRead()
+        | retorno = PWrite()
+    )
+    {return retorno;}
 }
 
 Read PRead() :
 {
-	Id id;
+    Id id;
 }
 {
-	<READ> <LPAREN>
-		id = PId()
-		   <RPAREN>
-	{return new Read (id);}
+    <READ> <LPAREN>
+        id = PId()
+           <RPAREN>
+    {return new Read (id);}
 }
 
 Write PWrite() :
 {
-	Expressao exp;
+    Expressao exp;
 }
 {
-	<WRITE> <LPAREN>
-		exp = PExpressao()
-		   <RPAREN>
-	{return new Write(exp);}
+    <WRITE> <LPAREN>
+        exp = PExpressao()
+           <RPAREN>
+    {return new Write(exp);}
 }
 
 IfThenElse PIfThenElse() :
 {
-	Expressao expressao;
-	Comando comandoThen;
-	Comando comandoElse;
+    Expressao expressao;
+    Comando comandoThen;
+    Comando comandoElse;
 }
 {
-	<IF>
-		expressao = PExpressao()
-	<THEN>
-		comandoThen = PComando()
-	<ELSE>
-		comandoElse = PComando()
-	{return new IfThenElse (expressao, comandoThen, comandoElse);}
+    <IF>
+        expressao = PExpressao()
+    <THEN>
+        comandoThen = PComando()
+    <ELSE>
+        comandoElse = PComando()
+    {return new IfThenElse (expressao, comandoThen, comandoElse);}
 }
 
 While PWhile() :
 {
-	Expressao expressao;
-	Comando comando;
+    Expressao expressao;
+    Comando comando;
 }
 {
-	<WHILE>
-		expressao = PExpressao()
-	<DO>
-		comando = PComando()
-	{return new While(expressao, comando);}
+    <WHILE>
+        expressao = PExpressao()
+    <DO>
+        comando = PComando()
+    {return new While(expressao, comando);}
 }
 
 Skip PSkip() :
 {
 }
 {
-	<COMAND_SKIP>
-	{return new Skip();}
+    <COMAND_SKIP>
+    {return new Skip();}
 }
 
+/*
+ * ==========================================================
+ * REGRA DO COMANDO LOAD
+ * ==========================================================
+ */
 Load PLoad():
 {
-    Token pathToken;
+    Expressao pathExpr; // Aceita Expressao (ex: "path.csv" ou var_path)
     Token idTok = null;
-    String path;
-    String alias;
+    Id id;
 }
 {
     (
+        // Sintaxe: LOAD "path" [AS id]
         <LOAD> 
-        pathToken = <STRING_LITERAL>
+        pathExpr = PExpressao() 
         [ <AS> idTok = <IDENTIFIER> ]
         {
-            path = pathToken.image.substring(1, pathToken.image.length() - 1); // Remove as aspas
-            alias = (idTok != null) ? idTok.image : null;
-            return new Load(path, alias);
+            id = (idTok != null) ? new Id(idTok.image) : null;
+            // Passa a Expressao, não a String
+            return new Load(pathExpr, id); 
         }
-      | <VAR> idTok = <IDENTIFIER> <LOAD> pathToken = <STRING_LITERAL>
+      | 
+        // Sintaxe: VAR id LOAD "path"
+        <VAR> idTok = <IDENTIFIER> <LOAD> pathExpr = PExpressao()
         {
-            path = pathToken.image.substring(1, pathToken.image.length() - 1); // Remove as aspas
-            return new Load(path, idTok.image);
+            id = new Id(idTok.image);
+            // Passa a Expressao, não a String
+            return new Load(pathExpr, id); 
         }
     )
 }
 
+// Regra helper para 'dataframe.coluna'
 VarColuna PVarColuna():
 {
     Token idVar, idCol;
@@ -437,7 +505,6 @@ VarColuna PVarColuna():
 {
     idVar=<IDENTIFIER> "." idCol=<IDENTIFIER>
     { 
-        // Cria a "caixinha" com os dois Ids e a retorna como um único objeto
         return new VarColuna(new Id(idVar.toString()), new Id(idCol.toString())); 
     }
 }
@@ -532,159 +599,264 @@ Quartiles PQuartiles():
     { return new Quartiles(vc.var, vc.col, new Id(idDestino.toString())); }
 }
 
+/*
+ * ==========================================================
+ * REGRA DO COMANDO COUNT
+ * ==========================================================
+ */
 Contagem PContagem():
 {
     Token idVar;
+    Token idDestino = null; 
 }
 {
-    <COUNT> idVar=<IDENTIFIER>
+    // Sintaxe: COUNT dataframe [AS varDestino]
+    <COUNT> idVar=<IDENTIFIER> [ <AS> idDestino=<IDENTIFIER> ]
     {
-        return new Contagem(new Id(idVar.toString()));
+        Id dest = (idDestino != null) ? new Id(idDestino.toString()) : null;
+        return new Contagem(new Id(idVar.toString()), dest);
     }
 }
 
+/*
+ * ==========================================================
+ * REGRA DO COMANDO FILTRO - (USANDO INTO)
+ * ==========================================================
+ */
 Filtro PFiltro():
 {
     Token idOrigem, idDestino;
     Expressao cond;
 }
 {
+    // Sintaxe: FILTER dataframe INTO novoDataframe WHERE expressao
     <FILTER> idOrigem=<IDENTIFIER> <INTO> idDestino=<IDENTIFIER> <WHERE> cond=PExpressao()
     {
         return new Filtro(new Id(idOrigem.toString()), new Id(idDestino.toString()), cond);
     }
 }
 
-Show PShow():
+/*
+ * ==========================================================
+ * REGRA DO COMANDO SHOW - CORRIGIDA (PARA SHOW MEAN ...)
+ * ==========================================================
+ */
+Comando PShow():
 {
-    Token idVar, coluna;
-    Token limite = null;
+    Comando retorno;
+    Token idVar;
+    Expressao limiteExp = null;
+    VarColuna vc;
 }
 {
+    <SHOW>
     (
-        LOOKAHEAD(<SHOW> <STATS>)
-        <SHOW> <STATS> idVar=<IDENTIFIER> "." coluna=<IDENTIFIER>
-        { return new Show(new Id(idVar.toString()), new Id(coluna.toString())); }
-      | <SHOW> idVar=<IDENTIFIER> <LIMIT> limite=<INTEGER_LITERAL>
-        { return new Show(new Id(idVar.toString()), Integer.parseInt(limite.toString())); }
+        // Caminho 1: SHOW MEAN dataframe.coluna
+        LOOKAHEAD(<MEAN>)
+        <MEAN> vc=PVarColuna()
+        { retorno = new Show(vc.var, vc.col, "MEAN"); } // Novo Construtor
+    |
+        // Caminho 2: SHOW MEDIAN dataframe.coluna
+        LOOKAHEAD(<MEDIAN>)
+        <MEDIAN> vc=PVarColuna()
+        { retorno = new Show(vc.var, vc.col, "MEDIAN"); } // Novo Construtor
+    |
+        // Adicionando todos os outros...
+        LOOKAHEAD(<MODE>) <MODE> vc=PVarColuna()
+        { retorno = new Show(vc.var, vc.col, "MODE"); }
+    |
+        LOOKAHEAD(<STD>) <STD> vc=PVarColuna()
+        { retorno = new Show(vc.var, vc.col, "STD"); }
+    |
+        LOOKAHEAD(<VARIANCE>) <VARIANCE> vc=PVarColuna()
+        { retorno = new Show(vc.var, vc.col, "VARIANCE"); }
+    |
+        LOOKAHEAD(<MIN>) <MIN> vc=PVarColuna()
+        { retorno = new Show(vc.var, vc.col, "MIN"); }
+    |
+        LOOKAHEAD(<MAX>) <MAX> vc=PVarColuna()
+        { retorno = new Show(vc.var, vc.col, "MAX"); }
+    |
+        LOOKAHEAD(<RANGE>) <RANGE> vc=PVarColuna()
+        { retorno = new Show(vc.var, vc.col, "RANGE"); }
+    |
+        LOOKAHEAD(<QUARTILES>) <QUARTILES> vc=PVarColuna()
+        { retorno = new Show(vc.var, vc.col, "QUARTILES"); }
+    |
+        // Caminho 3: SHOW dataframe [LIMIT ...] OU SHOW variavel
+        // Este TEM que ser o último (fallback)
+        idVar=<IDENTIFIER>
+        [ <LIMIT> limiteExp = PExpPrimaria() ]
+        { retorno = new Show(new Id(idVar.toString()), limiteExp); } // Construtor antigo
     )
+    { return retorno; }
 }
 
-Save PSave():
+
+/*
+ * ==========================================================
+ * REGRA DO COMANDO STATS - REMOVIDA
+ * ==========================================================
+ */
+/*
+Comando PStats():
 {
-    Token idVar, path;
 }
 {
-    <SAVE> idVar=<IDENTIFIER> <AS> path=<STRING_LITERAL>
+    // Esta regra está vazia, PShow() agora faz este trabalho.
+    { return null; }
+}
+*/
+
+
+/*
+ * ==========================================================
+ * REGRA DO COMANDO SAVE
+ * ==========================================================
+ */
+Save PSave():
+{
+    Token idVar;
+    Id id;
+    Expressao pathExpr; // Aceita Expressao (ex: "path.csv" ou var_path)
+}
+{
+    // Sintaxe: SAVE dataframe AS "path.csv"
+    <SAVE> idVar=<IDENTIFIER> <AS> pathExpr = PExpressao()
     {
-        String caminho = path.image.substring(1, path.image.length() - 1);
-        return new Save(new Id(idVar.toString()), caminho);
+        id = new Id(idVar.toString());
+        // Passa Id e Expressao, como o construtor Java espera
+        return new Save(id, pathExpr);
     }
 }
 
 Atribuicao PAtribuicao() :
 {
-	Id id;
-	Expressao exp;
+    Id id;
+    Expressao exp;
 }
 {
-	id  = PId() <ATTRIB> exp = PExpressao()
-	{
-		return new Atribuicao(id, exp);
-	}
+    id  = PId() <ATTRIB> exp = PExpressao()
+    {
+        return new Atribuicao(id, exp);
+    }
 }
 
 Id PId() :
 {
-	Token token;
+    Token token;
 }
 {
-	token = <IDENTIFIER>
-	{
-		return new Id(token.toString());
-	}
+    token = <IDENTIFIER>
+    {
+        return new Id(token.toString());
+    }
 }
 
+/*
+ * ==========================================================
+ * REGRAS DE VALOR (LITERAIS)
+ * ==========================================================
+ */
 
 Valor PValorInteiro() :
 {
-	Token token;
+    Token token;
 }
 {
-	token = <INTEGER_LITERAL>
-	{
-		return new ValorInteiro(Integer.parseInt(token.toString()));
-	}
+    token = <INTEGER_LITERAL>
+    {
+        return new ValorInteiro(Integer.parseInt(token.toString()));
+    }
+}
+
+Valor PValorDouble() : // ADICIONADO
+{
+    Token token;
+}
+{
+    token = <FLOATING_POINT_LITERAL>
+    {
+        return new ValorDouble(Double.parseDouble(token.toString()));
+    }
 }
 
 Valor PValorBooleano() :
 {
 }
 {
-	  <FALSE> { return new ValorBooleano(false); } 
-	| <TRUE>  { return new ValorBooleano(true); }
+      <FALSE> { return new ValorBooleano(false); } 
+    | <TRUE>  { return new ValorBooleano(true); }
 }
 
 Valor PValorString() :
 {
-	Token token;
+    Token token;
 }
 {
-	token = <STRING_LITERAL>
-	{
-		String tokenStr = token.toString();
-		tokenStr = tokenStr.substring(1,tokenStr.length()-1);
-		return new ValorString(tokenStr);
-	}
+    token = <STRING_LITERAL>
+    {
+        String tokenStr = token.toString();
+        // Remove as aspas do literal
+        tokenStr = tokenStr.substring(1,tokenStr.length()-1);
+        return new ValorString(tokenStr);
+    }
 }
 
 Valor PValor() :
 {
-	Valor retorno;
+    Valor retorno;
 }
 {
-	(
-      	  retorno = PValorInteiro() 
-		| retorno = PValorBooleano()
-		| retorno = PValorString()
+    (
+          retorno = PValorInteiro() 
+        | retorno = PValorDouble() // ADICIONADO
+        | retorno = PValorBooleano()
+        | retorno = PValorString()
     )
-	
-	{
-		return retorno;
-	}
+    
+    {
+        return retorno;
+    }
 }
+
+/*
+ * ==========================================================
+ * REGRAS DE EXPRESSÃO
+ * ==========================================================
+ */
 
 Expressao PExpMenos() :
 {
-	Expressao retorno;
+    Expressao retorno;
 }
 {
-	<MINUS> retorno = PExpressao()
-	{
-		return new ExpMenos(retorno);
-	}
+    <MINUS> retorno = PExpressao()
+    {
+        return new ExpMenos(retorno);
+    }
 }
 
 Expressao PExpNot() :
 {
-	Expressao retorno;
+    Expressao retorno;
 }
 {
-	<NOT> retorno = PExpressao()
-	{
-		return new ExpNot(retorno);
-	}
+    <NOT> retorno = PExpressao()
+    {
+        return new ExpNot(retorno);
+    }
 }
 
 Expressao PExpLength() :
 {
-	Expressao retorno;
+    Expressao retorno;
 }
 {
-	<LENGTH> retorno = PExpressao()
-	{
-		return new ExpLength(retorno);
-	}
+    <LENGTH> retorno = PExpressao()
+    {
+        return new ExpLength(retorno);
+    }
 }
 
 Expressao PExpPrimaria() :
@@ -692,182 +864,292 @@ Expressao PExpPrimaria() :
     Expressao retorno;
 }
 {
-	(  
-	    retorno = PId()
-	  | retorno = PValor() 
-	  | <LPAREN> retorno = PExpressao() <RPAREN>
-	)
-	{
-		return retorno; 
-	}
+    (  
+        // Um Valor (Int, Double, String, Bool)
+        retorno = PValor() 
+      | 
+        // Um Id (variável)
+        // IMPORTANTE: PId() deve vir DEPOIS de PValor(),
+        // senão "TRUE" e "FALSE" serão lidos como Ids.
+        retorno = PId()
+      | 
+        // Uma expressão entre parênteses
+        <LPAREN> retorno = PExpressao() <RPAREN>
+    )
+    {
+        return retorno; 
+    }
 }
 
 
 Expressao PExpUnaria() :
 {
-	Expressao retorno;
+    Expressao retorno;
 }
 {
-	(
-	  retorno = PExpMenos()
-	|
-	  retorno = PExpNot() 
-	| 
-	  retorno = PExpLength()
-	)
-	{
-		return retorno;
-	}
+    (
+      retorno = PExpMenos()
+    |
+      retorno = PExpNot() 
+    | 
+      retorno = PExpLength()
+    )
+    {
+        return retorno;
+    }
 }
 
+/*
+ * ==========================================================
+ * REGRA DAS EXPRESSÕES BINÁRIAS - CORRIGIDA
+ * ==========================================================
+ */
 Expressao PExpBinaria() :
 {
-	Expressao retorno, param2;
+    Expressao retorno;
 }
 {
-	(
-		  LOOKAHEAD (PExpPrimaria() <CONCAT> )
-		  	retorno = PExpConcat()
-		| LOOKAHEAD (PExpPrimaria() <MINUS>)
-			retorno = PExpSub()
-		| LOOKAHEAD (PExpPrimaria() <AND>)
-			retorno = PExpAnd()
-		| LOOKAHEAD (PExpPrimaria() <OR>)
-			retorno = PExpOr()
-		| LOOKAHEAD (PExpPrimaria() <EQ>)
-			retorno = PExpEquals()
-		| LOOKAHEAD (PExpPrimaria() <PLUS>)
-			retorno = PExpSoma()
-	)
-	{
-		return retorno;
-	}
+    (
+          LOOKAHEAD (PExpPrimaria() <CONCAT> )
+            retorno = PExpConcat()
+        | LOOKAHEAD (PExpPrimaria() <MINUS>)
+            retorno = PExpSub()
+        | LOOKAHEAD (PExpPrimaria() <AND>)
+            retorno = PExpAnd()
+        | LOOKAHEAD (PExpPrimaria() <OR>)
+            retorno = PExpOr()
+        | LOOKAHEAD (PExpPrimaria() <EQ>)
+            retorno = PExpEquals()
+        | LOOKAHEAD (PExpPrimaria() <PLUS>)
+            retorno = PExpSoma()
+            
+        // --- COMPARADORES FALTANTES ADICIONADOS AQUI ---
+        | LOOKAHEAD (PExpPrimaria() <GT>)
+            retorno = PExpGt()
+        | LOOKAHEAD (PExpPrimaria() <LT>)
+            retorno = PExpLt()
+        | LOOKAHEAD (PExpPrimaria() <GE>)
+            retorno = PExpGe()
+        | LOOKAHEAD (PExpPrimaria() <LE>)
+            retorno = PExpLe()
+        | LOOKAHEAD (PExpPrimaria() <NE>)
+            retorno = PExpNe()
+    )
+    {
+        return retorno;
+    }
 }
 
 ExpSoma PExpSoma() :
 {
-	Expressao esq;
-	Expressao dir;
+    Expressao esq;
+    Expressao dir;
 }
 {
-	esq = PExpPrimaria()
-	<PLUS>
-	dir = PExpressao()
-	{return new ExpSoma(esq, dir);}
+    esq = PExpPrimaria()
+    <PLUS>
+    dir = PExpressao()
+    {return new ExpSoma(esq, dir);}
 }
 
 ExpSub PExpSub() :
 {
-	Expressao esq;
-	Expressao dir;
+    Expressao esq;
+    Expressao dir;
 }
 {
-	esq = PExpPrimaria()
-	<MINUS>
-	dir = PExpressao()
-	{return new ExpSub(esq, dir);}
+    esq = PExpPrimaria()
+    <MINUS>
+    dir = PExpressao()
+    {return new ExpSub(esq, dir);}
 }
 
 
 ExpAnd PExpAnd() :
 {
-	Expressao esq;
-	Expressao dir;
+    Expressao esq;
+    Expressao dir;
 }
 {
-	esq = PExpPrimaria()
-	<AND>
-	dir = PExpressao()
-	{return new ExpAnd(esq, dir);}
+    esq = PExpPrimaria()
+    <AND>
+    dir = PExpressao()
+    {return new ExpAnd(esq, dir);}
 }
 
 
 ExpOr PExpOr() :
 {
-	Expressao esq;
-	Expressao dir;
+    Expressao esq;
+    Expressao dir;
 }
 {
-	esq = PExpPrimaria()
-	<OR>
-	dir = PExpressao()
-	{return new ExpOr(esq, dir);}
+    esq = PExpPrimaria()
+    <OR>
+    dir = PExpressao()
+    {return new ExpOr(esq, dir);}
 }
 
 ExpEquals PExpEquals() :
 {
-	Expressao esq;
-	Expressao dir;
+    Expressao esq;
+    Expressao dir;
 }
 {
-	esq = PExpPrimaria()
-	<EQ>
-	dir = PExpressao()
-	{return new ExpEquals(esq, dir);}
+    esq = PExpPrimaria()
+    <EQ>
+    dir = PExpressao()
+    {return new ExpEquals(esq, dir);}
 }
 
 
 ExpConcat PExpConcat() :
 {
-	Expressao esq;
-	Expressao dir;
+    Expressao esq;
+    Expressao dir;
 }
 {
-	esq = PExpPrimaria()
-	<CONCAT>
-	dir = PExpressao()
-	{return new ExpConcat(esq, dir);}
+    esq = PExpPrimaria()
+    <CONCAT>
+    dir = PExpressao()
+    {return new ExpConcat(esq, dir);}
 }
 
+/*
+ * ==========================================================
+ * NOVAS REGRAS DE EXPRESSÃO DE COMPARAÇÃO
+ * ==========================================================
+ */
+ 
+ // ExpGt ::= Expressao ">" Expressao
+ExpGt PExpGt() :
+{
+    Expressao esq;
+    Expressao dir;
+}
+{
+    esq = PExpPrimaria()
+    <GT>
+    dir = PExpressao()
+    {return new ExpGt(esq, dir);}
+}
+
+ // ExpLt ::= Expressao "<" Expressao
+ExpLt PExpLt() :
+{
+    Expressao esq;
+    Expressao dir;
+}
+{
+    esq = PExpPrimaria()
+    <LT>
+    dir = PExpressao()
+    {return new ExpLt(esq, dir);}
+}
+
+ // ExpGe ::= Expressao ">=" Expressao
+ExpGe PExpGe() :
+{
+    Expressao esq;
+    Expressao dir;
+}
+{
+    esq = PExpPrimaria()
+    <GE>
+    dir = PExpressao()
+    {return new ExpGe(esq, dir);}
+}
+
+ // ExpLe ::= Expressao "<=" Expressao
+ExpLe PExpLe() :
+{
+    Expressao esq;
+    Expressao dir;
+}
+{
+    esq = PExpPrimaria()
+    <LE>
+    dir = PExpressao()
+    {return new ExpLe(esq, dir);}
+}
+
+ // ExpNe ::= Expressao "!=" Expressao
+ExpNe PExpNe() :
+{
+    Expressao esq;
+    Expressao dir;
+}
+{
+    esq = PExpPrimaria()
+    <NE>
+    dir = PExpressao()
+    {return new ExpNe(esq, dir);}
+}
+
+
+/*
+ * ==========================================================
+ * REGRA DE EXPRESSÃO PRINCIPAL - CORRIGIDA
+ * ==========================================================
+ */
 Expressao PExpressao() :
 {
-	Expressao retorno;
-}
-{
-	(
-	    LOOKAHEAD (2) 
-	  		retorno = PExpUnaria()
-	  | LOOKAHEAD (PExpPrimaria() (<OR> | <AND> | <MINUS> | <PLUS> | <EQ> | <CONCAT>)) 
-	  		retorno = PExpBinaria()
-	  |
-	    retorno = PExpPrimaria()
-	)
-	{
-		return retorno;
-	}
-}
-
-/*  ADICIONADO OU MODIFICADO DA Imperativa1 PARA A Imperativa2  */
-
-Comando PComandoSimples() :
-{
-	Comando retorno;
+    Expressao retorno;
 }
 {
     (
-		retorno = PLoad()
-	  | retorno = PContagem()
-	  | retorno = PFiltro()
-	  | retorno = PMean()
-	  | retorno = PMedian()
-	  | retorno = PMode()
-	  | retorno = PStd()
-	  | retorno = PVariance()
-	  | retorno = PMin()
-	  | retorno = PMax()
-	  | retorno = PRange()
-	  | retorno = PQuartiles()
-	  | retorno = PShow()
-	  | retorno = PSave()
+        LOOKAHEAD (2) 
+            retorno = PExpUnaria()
+            // ATUALIZADO o lookahead para incluir todos os operadores
+      | LOOKAHEAD (PExpPrimaria() (<OR> | <AND> | <MINUS> | <PLUS> | <EQ> | <CONCAT> | <GT> | <LT> | <GE> | <LE> | <NE>)) 
+            retorno = PExpBinaria()
+      |
+        retorno = PExpPrimaria()
+    )
+    {
+        return retorno;
+    }
+}
+
+/*
+ * ==========================================================
+ * REGRAS DE IMPERATIVA 2 (COMANDOS E DECLARAÇÕES)
+ * ==========================================================
+ */
+
+Comando PComandoSimples() :
+{
+    Comando retorno;
+}
+{
+    (
+        // Comandos da DSL (devem vir primeiro)
+        retorno = PLoad()
+      | retorno = PContagem()
+      | retorno = PFiltro()
+      | retorno = PMean()
+      | retorno = PMedian()
+      | retorno = PMode()
+      | retorno = PStd()
+      | retorno = PVariance()
+      | retorno = PMin()
+      | retorno = PMax()
+      | retorno = PRange()
+      | retorno = PQuartiles()
+      | retorno = PShow() // A regra PShow() agora faz tudo
+      // | retorno = PStats() // REMOVIDO
+      | retorno = PSave()
+      
+      // Comandos da Imperativa 2
       | retorno = PSkip()
       | retorno = PAtribuicao()
-      | retorno = PComandoDeclaracao()
+      | retorno = PComandoDeclaracao() // <-- O bloco {...}
       | retorno = PWhile()
       | retorno = PIfThenElse()
       | retorno = PIO()
       | <LPAREN> retorno = PComando() <RPAREN>
       | retorno = PChamadaProcedimento()
-   	)
+    )
     {
         return retorno;
     }
@@ -875,164 +1157,197 @@ Comando PComandoSimples() :
 
 ChamadaProcedimento PChamadaProcedimento():
 {
-	Id nomeProcedimento;
-	ListaExpressao parametrosAtuais;
+    Id nomeProcedimento;
+    ListaExpressao parametrosAtuais;
 }
 {
-	<CALL> nomeProcedimento = PId() <LPAREN> parametrosAtuais = PListaExpressao() <RPAREN>
-	{
-		return new ChamadaProcedimento(nomeProcedimento, parametrosAtuais);
-	}
+    <CALL> nomeProcedimento = PId() <LPAREN> parametrosAtuais = PListaExpressao() <RPAREN>
+    {
+        return new ChamadaProcedimento(nomeProcedimento, parametrosAtuais);
+    }
 }
 
-ComandoDeclaracao PComandoDeclaracao() :
+/*
+ * ==========================================================
+ * REGRA DO COMANDO DE DECLARACAO - CORRIGIDA
+ * Permite: { Declaracao ; Comando }  OU  { Comando }
+ * ==========================================================
+ */
+Comando PComandoDeclaracao() : 
 {
-	Declaracao dec;
-	Comando comando;
+    Declaracao dec;
+    Comando comando;
 }
 {
-	<LBRACE> 
-		dec = PDeclaracao() <SEMICOLON> comando = PComando() 
-	<RBRACE>
- 	{
- 		return new ComandoDeclaracao(dec, comando);
- 	}
+    <LBRACE>
+    (
+        // CAMINHO 1: Tenta parear a forma: { Declaracao ; Comando }
+        // Esta é a forma original da Imperativa 2, para 'PROC' e 'VAR'
+        LOOKAHEAD(<VAR> | <PROC>)
+        dec = PDeclaracao() <SEMICOLON> comando = PComando()
+        {
+            return new ComandoDeclaracao(dec, comando);
+        }
+    |
+        // CAMINHO 2: Se falhar, tenta parear a forma: { Comando }
+        // Isto permite blocos simples como { LOAD ...; SAVE ...; }
+        comando = PComando()
+        {
+            return comando; // Simplesmente retorna a sequência de comandos
+        }
+    )
+    <RBRACE>
 }
 
 Declaracao PDeclaracao():
 {
-	Declaracao retorno;
+    Declaracao retorno;
 }
 {
-	(
-		  LOOKAHEAD(PDeclaracaoVariavel() <COMMA>)
-           retorno = PDeclaracaoComposta()
+    (
+         LOOKAHEAD(PDeclaracaoVariavel() <COMMA>)
+            retorno = PDeclaracaoComposta()
           |LOOKAHEAD(PDeclaracaoProcedimento() <COMMA>)
-           retorno = PDeclaracaoComposta() 
-		  | retorno = PDeclaracaoVariavel()
-		  | retorno = PDeclaracaoProcedimento()
-          | <LPAREN> retorno = PDeclaracao() <RPAREN>   		 
-		  
-	)
-	{return retorno;}
+            retorno = PDeclaracaoComposta() 
+         | retorno = PDeclaracaoVariavel()
+         | retorno = PDeclaracaoProcedimento()
+         | <LPAREN> retorno = PDeclaracao() <RPAREN>            
+        
+    )
+    {return retorno;}
 }
 
 DeclaracaoComposta PDeclaracaoComposta():
 {
-	Declaracao d1;
-	Declaracao d2; 
+    Declaracao d1;
+    Declaracao d2; 
 }
 {
-	(LOOKAHEAD(PDeclaracaoVariavel() <COMMA>)
-	  d1 = PDeclaracaoVariavel() <COMMA> d2 = PDeclaracao()
-	 
-	 |  LOOKAHEAD(PDeclaracaoProcedimento() <COMMA>)
-	 d1 = PDeclaracaoProcedimento() <COMMA> d2 = PDeclaracao()
-	)
-	
-	{return new DeclaracaoComposta(d1, d2);}
+    (LOOKAHEAD(PDeclaracaoVariavel() <COMMA>)
+       d1 = PDeclaracaoVariavel() <COMMA> d2 = PDeclaracao()
+     
+     |  LOOKAHEAD(PDeclaracaoProcedimento() <COMMA>)
+     d1 = PDeclaracaoProcedimento() <COMMA> d2 = PDeclaracao()
+    )
+    
+    {return new DeclaracaoComposta(d1, d2);}
 }
 
 DeclaracaoProcedimento PDeclaracaoProcedimento():
 {
-	Id nome;
-	DefProcedimento defProcedimento;
+    Id nome;
+    DefProcedimento defProcedimento;
 }
 {
     (
+        // Aceita proc nome()
         LOOKAHEAD(<PROC> PId() <LPAREN> <RPAREN>)
-    	<PROC> nome = PId() <LPAREN> <RPAREN> defProcedimento = PDefProcedimento()
-    	|
-    	<PROC> nome = PId() <LPAREN> defProcedimento = PDefProcedimento()
+        <PROC> nome = PId() <LPAREN> <RPAREN> defProcedimento = PDefProcedimento()
+        |
+        // Aceita proc nome(int x, ...)
+        <PROC> nome = PId() <LPAREN> defProcedimento = PDefProcedimento()
     )
-	{
-	    return new DeclaracaoProcedimento (nome, defProcedimento);
-	}
+    {
+        return new DeclaracaoProcedimento (nome, defProcedimento);
+    }
 }
 
+/*
+ * ==========================================================
+ * REGRA DE DEFINIÇÃO DE PROCEDIMENTO - CORRIGIDA
+ * ==========================================================
+ */
 DefProcedimento PDefProcedimento():
 {
-	ListaDeclaracaoParametro listaPar = null;
-	Comando comando;
+    ListaDeclaracaoParametro listaPar = null;
+    Comando comando;
 }
 {
     (
-		<LBRACE> comando = PComando() <RBRACE>
-	   	| listaPar = PListaDeclaracaoParametro() <RPAREN> <LBRACE> comando = PComando() <RBRACE>
+        // CASO 1: proc sem parâmetros: proc nome() { ... }
+        // O <RPAREN> é consumido pelo PDeclaracaoProcedimento
+        <LBRACE> comando = PComando() <RBRACE> 
+        | 
+        // CASO 2: proc com parâmetros: proc nome(int x) { ... }
+        listaPar = PListaDeclaracaoParametro() <RPAREN> <LBRACE> comando = PComando() <RBRACE>
     )
-	{
-	    if(listaPar == null) {
-	        listaPar = new ListaDeclaracaoParametro();
-	    }
-	    return new DefProcedimento (listaPar, comando);
-	}
-	
+    {
+        if(listaPar == null) {
+            listaPar = new ListaDeclaracaoParametro();
+        }
+        return new DefProcedimento (listaPar, comando);
+    }
+    
 }
 
 Tipo PTipo():
 {
-	Tipo tipo;
+    Tipo tipo;
 }
 {
-	(
-	<INT> {tipo = TipoPrimitivo.INTEIRO;} |
-	<BOOLEAN> {tipo = TipoPrimitivo.BOOLEANO;} |
-	<STRING> {tipo = TipoPrimitivo.STRING;}
-	)
-	{
-		return tipo;
-	}
+    (
+    <INT> {tipo = TipoPrimitivo.INTEIRO;} | 
+    <BOOLEAN> {tipo = TipoPrimitivo.BOOLEANO;} |
+    <STRING> {tipo = TipoPrimitivo.STRING;}
+    )
+    {
+        return tipo;
+    }
 }
 
 ListaDeclaracaoParametro PListaDeclaracaoParametro():
 {
-	Id id;
-	Tipo tipo;
-	ListaDeclaracaoParametro lista = null;
+    Id id;
+    Tipo tipo;
+    ListaDeclaracaoParametro lista = null;
 }
 {
-	[ tipo = PTipo() 
-	  id = PId() 
-	  { lista = new ListaDeclaracaoParametro(new DeclaracaoParametro(id, tipo));}
-	] 
-	( <COMMA> 
-	  tipo = PTipo() id = PId() 
-	  {lista = new ListaDeclaracaoParametro(new DeclaracaoParametro(id, tipo), lista);} 
-	)*
-	
-	{
-		if (lista == null) {
-			lista = new ListaDeclaracaoParametro();
-		}	
-		return lista;
-	}
+    // Tornando o primeiro parâmetro não-opcional (remove [])
+    // Uma lista de parâmetros não pode começar vazia
+    tipo = PTipo() 
+    id = PId() 
+    { lista = new ListaDeclaracaoParametro(new DeclaracaoParametro(id, tipo));}
+    
+    ( <COMMA> 
+      tipo = PTipo() id = PId() 
+      {lista = new ListaDeclaracaoParametro(new DeclaracaoParametro(id, tipo), lista);} 
+    )*
+    
+    {
+        // if (lista == null) { // Não é mais necessário
+        //    lista = new ListaDeclaracaoParametro();
+        // }    
+        return lista;
+    }
 }
 
 ListaExpressao PListaExpressao():
 {
-	Expressao exp;
-	ListaExpressao lista = null;
+    Expressao exp;
+    ListaExpressao lista = null;
 }
 {
-	[ exp = PExpressao() { lista = new ListaExpressao(exp); } ] ( <COMMA> exp = PExpressao() {lista = new ListaExpressao(exp, lista);} )*
-	{
-		if (lista == null) {
-			lista = new ListaExpressao();
-		}	
-		return lista;
-	}
+    // Permite lista de expressão vazia: call meuProc()
+    [ exp = PExpressao() { lista = new ListaExpressao(exp); } ] 
+    ( <COMMA> exp = PExpressao() {lista = new ListaExpressao(exp, lista);} )*
+    {
+        if (lista == null) {
+            lista = new ListaExpressao();
+        }    
+        return lista;
+    }
 }
 
 DeclaracaoVariavel PDeclaracaoVariavel() :
 {
-	Id id;
-	Expressao exp;
-	DeclaracaoVariavel retorno;
+    Id id;
+    Expressao exp;
+    DeclaracaoVariavel retorno;
 }
 {
-	 <VAR> id = PId() <ASSIGN> exp = PExpressao() 
-	   	{retorno = new DeclaracaoVariavel(id, exp);}
-	{
-		return retorno;
-	}
+     <VAR> id = PId() <ASSIGN> exp = PExpressao() 
+        {retorno = new DeclaracaoVariavel(id, exp);}
+    {
+        return retorno;
+    }
 }

@@ -1,87 +1,120 @@
 package li2.plp.imperative2.command;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import li2.plp.expressions2.expression.Id;
-import li2.plp.expressions2.expression.Valor;
-import li2.plp.expressions2.memory.VariavelNaoDeclaradaException;
+// Imports do imperative1 (para a interface e ambiente corretos)
+import li2.plp.imperative1.command.Comando; 
 import li2.plp.imperative1.memory.AmbienteCompilacaoImperativa;
 import li2.plp.imperative1.memory.AmbienteExecucaoImperativa;
+
+// Imports do expressions2 (para Valores e IDs)
+import li2.plp.expressions2.expression.Id;
+import li2.plp.expressions2.expression.Valor;
+import li2.plp.expressions2.expression.ValorDouble;
+import li2.plp.expressions2.expression.ValorInteiro;
+import li2.plp.expressions2.expression.ValorDataFrame; // Importa a "matriz"
+
+// Imports do imperative2 (para o novo ambiente e a "matriz")
 import li2.plp.imperative2.memory.AmbienteExecucaoImperativa2;
 
-public abstract class ComandoEstatisticoAbstrato extends AnaliseLinhas {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
+/**
+ * ESTA É A VERSÃO CORRETA.
+ * Ela implementa a interface 'Comando' da imperative1 (como seu projeto exige).
+ * Ela usa a lógica eficiente do 'ValorDataFrame' (a "matriz").
+ * Ela usa o 'AmbienteExecucaoImperativa2'.
+ */
+public abstract class ComandoEstatisticoAbstrato implements Comando { // Implementa a interface de imperative1
+
+    protected Id idVariavelCsv;
     protected Id nomeColuna;
     protected Id idVariavelDestino;
 
-    public ComandoEstatisticoAbstrato(Id idVariavelCsv, Id nomeColuna, Id idVariavelDestino) {
-        super(idVariavelCsv); // Chama o construtor da classe mãe
-        this.nomeColuna = nomeColuna;
-        this.idVariavelDestino = idVariavelDestino;
-    }
-
-    @Override
-    public final AmbienteExecucaoImperativa executar(AmbienteExecucaoImperativa amb) throws VariavelNaoDeclaradaException {
-        AmbienteExecucaoImperativa2 ambiente = (AmbienteExecucaoImperativa2) amb;
-
-        // Usa o método herdado para obter as linhas, sem repetir código!
-        String[] linhas = getLinhasDoCsv(ambiente);
-        
-        if (linhas.length < 2) {
-             throw new RuntimeException("Erro: CSV '" + idVariavelCsv + "' não contém dados.");
-        }
-
-        String[] cabecalho = linhas[0].split(",");
-        int indiceColuna = -1;
-        for (int i = 0; i < cabecalho.length; i++) {
-            if (cabecalho[i].trim().equalsIgnoreCase(nomeColuna.toString())) {
-                indiceColuna = i;
-                break;
-            }
-        }
-
-        if (indiceColuna == -1) {
-            throw new RuntimeException("Erro: Coluna '" + nomeColuna + "' não encontrada no CSV.");
-        }
-
-        List<Double> numeros = new ArrayList<>();
-        for (int i = 1; i < linhas.length; i++) {
-            String[] celulas = linhas[i].split(",");
-            if (celulas.length > indiceColuna) {
-                try {
-                    numeros.add(Double.parseDouble(celulas[indiceColuna].trim()));
-                } catch (NumberFormatException e) {
-                    // Ignora valores não numéricos.
-                }
-            }
-        }
-        
-        // Chama o método abstrato que será implementado por cada comando concreto
-        Valor resultado = calcular(numeros);
-
-        // Salva o resultado na variável de destino
-        ambiente.map(idVariavelDestino, resultado);
-        // System.out.println("Resultado salvo na variável '" + idVariavelDestino + "'.");
-        System.out.println(">> " + this.getNomeEstatistica() + " de " + nomeColuna + ": " + resultado.toString());
-
-        return ambiente;
+    public ComandoEstatisticoAbstrato(Id idCsv, Id col, Id dest) {
+        this.idVariavelCsv = idCsv;
+        this.nomeColuna = col;
+        this.idVariavelDestino = dest;
     }
 
     /**
-     * Este é o único método que as subclasses (Mean, Median, etc.) precisarão implementar.
-     * @param numeros A lista de dados numéricos da coluna.
-     * @return O resultado do cálculo como um objeto 'Valor'.
+     * Métodos abstratos que as classes filhas (como Mean) devem implementar.
      */
     protected abstract Valor calcular(List<Double> numeros);
+    protected abstract String getNomeEstatistica(); // Para mensagens de erro
 
+    /**
+     * Este é o método de execução principal.
+     * A assinatura 'AmbienteExecucaoImperativa executar(...)' CORRESPONDE
+     * à sua interface 'Comando' da imperative1.
+     */
     @Override
-    public boolean checaTipo(AmbienteCompilacaoImperativa amb) {
-        // Para simplificar, assumimos que está bem tipado.
+    public AmbienteExecucaoImperativa executar(AmbienteExecucaoImperativa amb) throws RuntimeException {
+        
+        // 1. Faz o cast para o AmbienteExecucaoImperativa2, como você precisa.
+        //    Isto também assume que AmbienteExecucaoImperativa2 
+        //    estende AmbienteExecucao (de expressions2) em algum ponto
+        //    para que .get() e .map() funcionem com 'Valor'.
+        AmbienteExecucaoImperativa2 ambiente = (AmbienteExecucaoImperativa2) amb;
+
+        // 2. Pega o ValorDataFrame do ambiente
+        //    Aqui, assumimos que 'ambiente' (sendo do expressions2)
+        //    pode nos dar um 'Valor'.
+        Valor valor = ambiente.get(idVariavelCsv);
+        if (!(valor instanceof ValorDataFrame)) {
+            throw new RuntimeException("Erro: Variável '" + idVariavelCsv.getIdName() + "' não é um DataFrame.");
+        }
+        ValorDataFrame df = (ValorDataFrame) valor;
+        String colName = nomeColuna.getIdName();
+
+        // 3. Verifica o esquema (se a coluna existe)
+        if (!df.getSchema().containsKey(colName)) {
+            throw new RuntimeException("Erro: Coluna '" + colName + "' não encontrada no DataFrame '" + idVariavelCsv.getIdName() + "'.");
+        }
+        
+        // TODO: Refinar a verificação de tipo (ex: Tipo.FLOAT)
+        // Tipo tipoColuna = df.getSchema().get(colName);
+        // if(tipoColuna != Tipo.INT && tipoColuna != Tipo.FLOAT) {
+        //     throw new RuntimeException("Erro: Estatística '" + getNomeEstatistica() + "' não pode ser aplicada na coluna '" + colName + "'.");
+        // }
+
+        // 4. Itera pelas linhas e constrói a List<Double>
+        List<Double> numeros = new ArrayList<>();
+        for (Map<String, Valor> linha : df.getRows()) {
+            Valor valorLinha = linha.get(colName);
+            
+            // Converte ValorInteiro ou ValorDouble para Double
+            if (valorLinha instanceof ValorInteiro) {
+                numeros.add((double) ((ValorInteiro) valorLinha).valor());
+            } else if (valorLinha instanceof ValorDouble) {
+                numeros.add(((ValorDouble) valorLinha).valor());
+            }
+        }
+
+        // 5. Delega o cálculo para a classe filha (Mean, Median, Std...)
+        Valor resultado = calcular(numeros);
+
+        // 6. Salva o resultado no ambiente
+        ambiente.map(idVariavelDestino, resultado);
+        
+        System.out.println(">> " + this.getNomeEstatistica() + " de " + colName + ": " + resultado.toString());
+        
+        // 7. Retorna o ambiente modificado, conforme exigido pela interface
+        return ambiente;
+    }
+    
+    /**
+     * Implementação do método checaTipo da interface Comando.
+     */
+    @Override
+    public boolean checaTipo(AmbienteCompilacaoImperativa amb) throws RuntimeException {
+        // TODO: Implementar a verificação de tipos real.
+        // 1. Fazer cast de 'amb' para AmbienteCompilacao (de expressions2)
+        // 2. Verificar se idVariavelCsv é do tipo TipoDataFrame em 'amb'
+        // 3. Verificar se 'nomeColuna' existe no schema desse TipoDataFrame
+        // 4. Verificar se o tipo da coluna é numérico (INT ou FLOAT)
+        // 5. Mapear 'idVariavelDestino' para o tipo de resultado (ex: Tipo.FLOAT) em 'amb'
+        
         return true;
     }
-
-
-    //Pegar o nome da estatística a ser exibido no terminal
-    protected abstract String getNomeEstatistica();
 }

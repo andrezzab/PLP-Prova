@@ -1,40 +1,73 @@
 package li2.plp.imperative2.command;
 
 import li2.plp.expressions2.expression.Id;
-import li2.plp.expressions2.memory.VariavelNaoDeclaradaException;
+import li2.plp.expressions2.expression.Valor;
+import li2.plp.expressions2.expression.ValorInteiro;
+import li2.plp.imperative1.command.Comando;
 import li2.plp.imperative1.memory.AmbienteCompilacaoImperativa;
 import li2.plp.imperative1.memory.AmbienteExecucaoImperativa;
 import li2.plp.imperative2.memory.AmbienteExecucaoImperativa2;
+import li2.plp.expressions2.expression.ValorDataFrame;
 
-public class Contagem extends AnaliseLinhas {
+/**
+ * Implementa o comando COUNT...
+ * Este comando usa a lógica de "matriz mxn" (ValorDataFrame).
+ */
+public class Contagem implements Comando {
 
-    public Contagem(Id idVariavelCsv) {
-        // Chama o construtor da classe mãe
-        super(idVariavelCsv);
+    private Id idDataFrame;
+    private Id idVariavelDestino; // Opcional, para "COUNT ... AS ..."
+
+    /**
+     * Construtor para: COUNT func
+     * (O parser antigo só suportava este)
+     */
+    public Contagem(Id idDataFrame) {
+        this.idDataFrame = idDataFrame;
+        this.idVariavelDestino = null; // O resultado só será impresso
+    }
+    
+    /**
+     * Construtor para: COUNT func AS total
+     * (A BNF precisaria ser atualizada para suportar "AS")
+     */
+    public Contagem(Id idDataFrame, Id idVariavelDestino) {
+        this.idDataFrame = idDataFrame;
+        this.idVariavelDestino = idVariavelDestino;
     }
 
+
     @Override
-    public AmbienteExecucaoImperativa executar(AmbienteExecucaoImperativa amb) throws VariavelNaoDeclaradaException {
+    public AmbienteExecucaoImperativa executar(AmbienteExecucaoImperativa amb) throws RuntimeException {
+        // 1. Faz o cast para o ambiente correto
         AmbienteExecucaoImperativa2 ambiente = (AmbienteExecucaoImperativa2) amb;
 
-        // Usa o método herdado para obter as linhas
-        String[] linhas = getLinhasDoCsv(ambiente);
+        // 2. Pega o DataFrame original do ambiente
+        Valor val = ambiente.get(idDataFrame);
+        if (!(val instanceof ValorDataFrame)) {
+            throw new RuntimeException("Erro: Variável '" + idDataFrame.getIdName() + "' não é um DataFrame.");
+        }
+        ValorDataFrame df = (ValorDataFrame) val;
+        
+        // 3. Obtém a contagem (operação em memória, rápida)
+        int contagem = df.getRows().size();
+        ValorInteiro resultado = new ValorInteiro(contagem);
 
-        int numeroDeRegistros = 0;
-        if (linhas.length > 0 && !linhas[0].isEmpty()) {
-            numeroDeRegistros = linhas.length - 1;
+        // 4. Salva o resultado no ambiente SE um 'AS' foi fornecido
+        if (idVariavelDestino != null) {
+            ambiente.map(idVariavelDestino, resultado);
+            System.out.println(">> Contagem de '" + idDataFrame.getIdName() + "': " + contagem + " (salvo em '" + idVariavelDestino.getIdName() + "')");
+        } else {
+             System.out.println(">> Contagem de '" + idDataFrame.getIdName() + "': " + contagem);
         }
 
-        System.out.println("\n--- Contagem de Registros ---");
-        System.out.println("Número total de registros (linhas de dados): " + numeroDeRegistros);
-        System.out.println("-----------------------------\n");
-        
+        // 5. Retorna o ambiente modificado
         return ambiente;
     }
 
     @Override
-    public boolean checaTipo(AmbienteCompilacaoImperativa amb) {
-        // Para simplificar, retornamos true.
+    public boolean checaTipo(AmbienteCompilacaoImperativa amb) throws RuntimeException {
+        // TODO: Implementar checagem de tipo
         return true;
     }
 }
