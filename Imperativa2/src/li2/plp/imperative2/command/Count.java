@@ -13,7 +13,7 @@ import li2.plp.expressions2.expression.ValorDataFrame;
  * Implementa o comando COUNT...
  * Este comando usa a lógica de "matriz mxn" (ValorDataFrame).
  */
-public class Contagem implements Comando {
+public class Count implements Comando {
 
     private Id idDataFrame;
     private Id idVariavelDestino; // Opcional, para "COUNT ... AS ..."
@@ -22,7 +22,7 @@ public class Contagem implements Comando {
      * Construtor para: COUNT func
      * (O parser antigo só suportava este)
      */
-    public Contagem(Id idDataFrame) {
+    public Count(Id idDataFrame) {
         this.idDataFrame = idDataFrame;
         this.idVariavelDestino = null; // O resultado só será impresso
     }
@@ -31,7 +31,7 @@ public class Contagem implements Comando {
      * Construtor para: COUNT func AS total
      * (A BNF precisaria ser atualizada para suportar "AS")
      */
-    public Contagem(Id idDataFrame, Id idVariavelDestino) {
+    public Count(Id idDataFrame, Id idVariavelDestino) {
         this.idDataFrame = idDataFrame;
         this.idVariavelDestino = idVariavelDestino;
     }

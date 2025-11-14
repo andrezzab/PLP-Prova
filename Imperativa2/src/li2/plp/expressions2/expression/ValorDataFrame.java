@@ -1,6 +1,6 @@
 package li2.plp.expressions2.expression;
 
-import li2.plp.expressions1.util.Tipo; // Supondo este pacote
+import li2.plp.expressions1.util.Tipo;
 import li2.plp.expressions2.memory.AmbienteCompilacao;
 import li2.plp.expressions2.memory.AmbienteExecucao;
 
@@ -8,13 +8,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Esta é a sua "matriz mxn".
+ * Esta é a "matriz mxn".
  * É uma classe Valor que armazena a planilha em memória.
  * É IMUTÁVEL: uma vez criado, não pode ser alterado.
  */
 public class ValorDataFrame implements Valor {
 
-    // O "esquema" (nomes e tipos das colunas)
+    // nomes e tipos das colunas
     private final Map<String, Tipo> schema;
     
     // Os dados (lista de linhas, onde cada linha é um mapa de [coluna -> valor])

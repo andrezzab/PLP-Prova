@@ -34,6 +34,7 @@ C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\expressions2\expression\ValorDataFram
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\expressions2\expression\Expressao.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\expressions2\expression\Valor.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative1\command\SequenciaComando.java
+C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative2\parser\VarColumn.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\expressions2\memory\VariavelJaDeclaradaException.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative2\command\Range.java
 C:\PLP\PLP-Projeto\Imperativa2\target\generated-sources\javacc\li2\plp\imperative2\parser\Imp2ParserTokenManager.java
@@ -41,6 +42,7 @@ C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\expressions2\expression\ValorBooleano
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\expressions2\memory\Contexto.java
 C:\PLP\PLP-Projeto\Imperativa2\target\generated-sources\javacc\li2\plp\imperative2\parser\Token.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative2\command\Mode.java
+C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative2\command\Count.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative1\declaration\DeclaracaoComposta.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative2\declaration\ListaDeclaracaoParametro.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative2\memory\ProcedimentoNaoDeclaradoException.java
@@ -55,10 +57,9 @@ C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\expressions2\expression\ExpSub.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative1\command\While.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\expressions2\expression\ExpLe.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative1\memory\EntradaVaziaException.java
+C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative2\command\Filter.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative2\command\Max.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative2\command\Show.java
-C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative2\command\CalculadoraEstatisticas.java
-C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative2\command\Filtro.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\expressions2\expression\ExpOr.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative2\command\Variance.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\expressions2\expression\ExpBinariaNumerica.java
@@ -68,6 +69,7 @@ C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative2\command\Median.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\expressions2\memory\Ambiente.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative1\memory\AmbienteCompilacaoImperativa.java
 C:\PLP\PLP-Projeto\Imperativa2\target\generated-sources\javacc\li2\plp\imperative2\parser\ParseException.java
+C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative2\util\CalculadoraEstatisticas.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative2\memory\ProcedimentoJaDeclaradoException.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\expressions2\expression\ValorFloat.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\expressions1\excecao\ErroTipoException.java
@@ -77,7 +79,6 @@ C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative1\command\Atribuicao.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\expressions2\expression\ExpEquals.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\expressions2\expression\ExpGe.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\expressions2\expression\ExpLt.java
-C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative2\command\Contagem.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative2\memory\ContextoExecucaoImperativa2.java
 C:\PLP\PLP-Projeto\Imperativa2\target\generated-sources\javacc\li2\plp\imperative2\parser\Imp2Parser.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\expressions2\memory\ContextoExecucao.java
@@ -95,7 +96,6 @@ C:\PLP\PLP-Projeto\Imperativa2\target\generated-sources\javacc\li2\plp\imperativ
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\expressions1\util\Tipo.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative1\declaration\DeclaracaoVariavel.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative2\command\Std.java
-C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative2\command\VarColuna.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative2\util\TipoProcedimento.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\expressions2\expression\ValorDouble.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative1\memory\ErroTipoEntradaException.java

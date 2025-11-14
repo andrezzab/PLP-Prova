@@ -38,12 +38,11 @@ import li2.plp.imperative2.command.Min;
 import li2.plp.imperative2.command.Max;
 import li2.plp.imperative2.command.Range;
 import li2.plp.imperative2.command.Quartiles;
-import li2.plp.imperative2.command.Contagem;
-import li2.plp.imperative2.command.Filtro;
+import li2.plp.imperative2.command.Count;
+import li2.plp.imperative2.command.Filter;
 import li2.plp.imperative2.command.Show;
 import li2.plp.imperative2.command.Save;
-// import li2.plp.imperative2.command.Stats; // Não mais necessário
-import li2.plp.imperative2.command.VarColuna;
+import li2.plp.imperative2.parser.VarColumn;
 // Imports para as novas classes de Expressão de Comparação
 import li2.plp.expressions2.expression.ExpGt;
 import li2.plp.expressions2.expression.ExpLt;

@@ -46,12 +46,11 @@ import li2.plp.imperative2.command.Min;
 import li2.plp.imperative2.command.Max;
 import li2.plp.imperative2.command.Range;
 import li2.plp.imperative2.command.Quartiles;
-import li2.plp.imperative2.command.Contagem;
-import li2.plp.imperative2.command.Filtro;
+import li2.plp.imperative2.command.Count;
+import li2.plp.imperative2.command.Filter;
 import li2.plp.imperative2.command.Show;
 import li2.plp.imperative2.command.Save;
-// import li2.plp.imperative2.command.Stats; // Não mais necessário
-import li2.plp.imperative2.command.VarColuna;
+import li2.plp.imperative2.parser.VarColumn;
 
 // Imports para as novas classes de Expressão de Comparação
 import li2.plp.expressions2.expression.ExpGt;
@@ -196,7 +195,6 @@ TOKEN : /* TOKENS DE IMPERATIVA 2 (MAIÚSCULAS) */
 | < RANGE: "RANGE" >
 | < QUARTILES: "QUARTILES" >
 | < SHOW: "SHOW" >
-// | < STATS: "STATS" > // REMOVIDO
 | < LIMIT: "LIMIT" >
 | < SAVE: "SAVE" >
 // | < ON : "ON" > // REMOVIDO
@@ -498,104 +496,104 @@ Load PLoad():
 }
 
 // Regra helper para 'dataframe.coluna'
-VarColuna PVarColuna():
+VarColumn PVarColumn():
 {
     Token idVar, idCol;
 }
 {
     idVar=<IDENTIFIER> "." idCol=<IDENTIFIER>
     { 
-        return new VarColuna(new Id(idVar.toString()), new Id(idCol.toString())); 
+        return new VarColumn(new Id(idVar.toString()), new Id(idCol.toString())); 
     }
 }
 
 Mean PMean():
 {
-    VarColuna vc;
+    VarColumn vc;
     Token idDestino;
 }
 {
-    <MEAN> vc=PVarColuna() <AS> idDestino=<IDENTIFIER>
+    <MEAN> vc=PVarColumn() <AS> idDestino=<IDENTIFIER>
     { return new Mean(vc.var, vc.col, new Id(idDestino.toString())); }
 }
 
 Median PMedian():
 {
-    VarColuna vc;
+    VarColumn vc;
     Token idDestino;
 }
 {
-    <MEDIAN> vc=PVarColuna() <AS> idDestino=<IDENTIFIER>
+    <MEDIAN> vc=PVarColumn() <AS> idDestino=<IDENTIFIER>
     { return new Median(vc.var, vc.col, new Id(idDestino.toString())); }
 }
 
 Mode PMode():
 {
-    VarColuna vc;
+    VarColumn vc;
     Token idDestino;
 }
 {
-    <MODE> vc=PVarColuna() <AS> idDestino=<IDENTIFIER>
+    <MODE> vc=PVarColumn() <AS> idDestino=<IDENTIFIER>
     { return new Mode(vc.var, vc.col, new Id(idDestino.toString())); }
 }
 
 Std PStd():
 {
-    VarColuna vc;
+    VarColumn vc;
     Token idDestino;
 }
 {
-    <STD> vc=PVarColuna() <AS> idDestino=<IDENTIFIER>
+    <STD> vc=PVarColumn() <AS> idDestino=<IDENTIFIER>
     { return new Std(vc.var, vc.col, new Id(idDestino.toString())); }
 }
 
 Variance PVariance():
 {
-    VarColuna vc;
+    VarColumn vc;
     Token idDestino;
 }
 {
-    <VARIANCE> vc=PVarColuna() <AS> idDestino=<IDENTIFIER>
+    <VARIANCE> vc=PVarColumn() <AS> idDestino=<IDENTIFIER>
     { return new Variance(vc.var, vc.col, new Id(idDestino.toString())); }
 }
 
 Min PMin():
 {
-    VarColuna vc;
+    VarColumn vc;
     Token idDestino;
 }
 {
-    <MIN> vc=PVarColuna() <AS> idDestino=<IDENTIFIER>
+    <MIN> vc=PVarColumn() <AS> idDestino=<IDENTIFIER>
     { return new Min(vc.var, vc.col, new Id(idDestino.toString())); }
 }
 
 Max PMax():
 {
-    VarColuna vc;
+    VarColumn vc;
     Token idDestino;
 }
 {
-    <MAX> vc=PVarColuna() <AS> idDestino=<IDENTIFIER>
+    <MAX> vc=PVarColumn() <AS> idDestino=<IDENTIFIER>
     { return new Max(vc.var, vc.col, new Id(idDestino.toString())); }
 }
 
 Range PRange():
 {
-    VarColuna vc;
+    VarColumn vc;
     Token idDestino;
 }
 {
-    <RANGE> vc=PVarColuna() <AS> idDestino=<IDENTIFIER>
+    <RANGE> vc=PVarColumn() <AS> idDestino=<IDENTIFIER>
     { return new Range(vc.var, vc.col, new Id(idDestino.toString())); }
 }
 
 Quartiles PQuartiles():
 {
-    VarColuna vc;
+    VarColumn vc;
     Token idDestino;
 }
 {
-    <QUARTILES> vc=PVarColuna() <AS> idDestino=<IDENTIFIER>
+    <QUARTILES> vc=PVarColumn() <AS> idDestino=<IDENTIFIER>
     { return new Quartiles(vc.var, vc.col, new Id(idDestino.toString())); }
 }
 
@@ -604,7 +602,7 @@ Quartiles PQuartiles():
  * REGRA DO COMANDO COUNT
  * ==========================================================
  */
-Contagem PContagem():
+Count PCount():
 {
     Token idVar;
     Token idDestino = null; 
@@ -614,16 +612,16 @@ Contagem PContagem():
     <COUNT> idVar=<IDENTIFIER> [ <AS> idDestino=<IDENTIFIER> ]
     {
         Id dest = (idDestino != null) ? new Id(idDestino.toString()) : null;
-        return new Contagem(new Id(idVar.toString()), dest);
+        return new Count(new Id(idVar.toString()), dest);
     }
 }
 
 /*
  * ==========================================================
- * REGRA DO COMANDO FILTRO - (USANDO INTO)
+ * REGRA DO COMANDO Filter - (USANDO INTO)
  * ==========================================================
  */
-Filtro PFiltro():
+Filter PFilter():
 {
     Token idOrigem, idDestino;
     Expressao cond;
@@ -632,7 +630,7 @@ Filtro PFiltro():
     // Sintaxe: FILTER dataframe INTO novoDataframe WHERE expressao
     <FILTER> idOrigem=<IDENTIFIER> <INTO> idDestino=<IDENTIFIER> <WHERE> cond=PExpressao()
     {
-        return new Filtro(new Id(idOrigem.toString()), new Id(idDestino.toString()), cond);
+        return new Filter(new Id(idOrigem.toString()), new Id(idDestino.toString()), cond);
     }
 }
 
@@ -646,41 +644,41 @@ Comando PShow():
     Comando retorno;
     Token idVar;
     Expressao limiteExp = null;
-    VarColuna vc;
+    VarColumn vc;
 }
 {
     <SHOW>
     (
         // Caminho 1: SHOW MEAN dataframe.coluna
         LOOKAHEAD(<MEAN>)
-        <MEAN> vc=PVarColuna()
+        <MEAN> vc=PVarColumn()
         { retorno = new Show(vc.var, vc.col, "MEAN"); } // Novo Construtor
     |
         // Caminho 2: SHOW MEDIAN dataframe.coluna
         LOOKAHEAD(<MEDIAN>)
-        <MEDIAN> vc=PVarColuna()
+        <MEDIAN> vc=PVarColumn()
         { retorno = new Show(vc.var, vc.col, "MEDIAN"); } // Novo Construtor
     |
         // Adicionando todos os outros...
-        LOOKAHEAD(<MODE>) <MODE> vc=PVarColuna()
+        LOOKAHEAD(<MODE>) <MODE> vc=PVarColumn()
         { retorno = new Show(vc.var, vc.col, "MODE"); }
     |
-        LOOKAHEAD(<STD>) <STD> vc=PVarColuna()
+        LOOKAHEAD(<STD>) <STD> vc=PVarColumn()
         { retorno = new Show(vc.var, vc.col, "STD"); }
     |
-        LOOKAHEAD(<VARIANCE>) <VARIANCE> vc=PVarColuna()
+        LOOKAHEAD(<VARIANCE>) <VARIANCE> vc=PVarColumn()
         { retorno = new Show(vc.var, vc.col, "VARIANCE"); }
     |
-        LOOKAHEAD(<MIN>) <MIN> vc=PVarColuna()
+        LOOKAHEAD(<MIN>) <MIN> vc=PVarColumn()
         { retorno = new Show(vc.var, vc.col, "MIN"); }
     |
-        LOOKAHEAD(<MAX>) <MAX> vc=PVarColuna()
+        LOOKAHEAD(<MAX>) <MAX> vc=PVarColumn()
         { retorno = new Show(vc.var, vc.col, "MAX"); }
     |
-        LOOKAHEAD(<RANGE>) <RANGE> vc=PVarColuna()
+        LOOKAHEAD(<RANGE>) <RANGE> vc=PVarColumn()
         { retorno = new Show(vc.var, vc.col, "RANGE"); }
     |
-        LOOKAHEAD(<QUARTILES>) <QUARTILES> vc=PVarColuna()
+        LOOKAHEAD(<QUARTILES>) <QUARTILES> vc=PVarColumn()
         { retorno = new Show(vc.var, vc.col, "QUARTILES"); }
     |
         // Caminho 3: SHOW dataframe [LIMIT ...] OU SHOW variavel
@@ -691,23 +689,6 @@ Comando PShow():
     )
     { return retorno; }
 }
-
-
-/*
- * ==========================================================
- * REGRA DO COMANDO STATS - REMOVIDA
- * ==========================================================
- */
-/*
-Comando PStats():
-{
-}
-{
-    // Esta regra está vazia, PShow() agora faz este trabalho.
-    { return null; }
-}
-*/
-
 
 /*
  * ==========================================================
@@ -1125,8 +1106,8 @@ Comando PComandoSimples() :
     (
         // Comandos da DSL (devem vir primeiro)
         retorno = PLoad()
-      | retorno = PContagem()
-      | retorno = PFiltro()
+      | retorno = PCount()
+      | retorno = PFilter()
       | retorno = PMean()
       | retorno = PMedian()
       | retorno = PMode()
@@ -1136,8 +1117,7 @@ Comando PComandoSimples() :
       | retorno = PMax()
       | retorno = PRange()
       | retorno = PQuartiles()
-      | retorno = PShow() // A regra PShow() agora faz tudo
-      // | retorno = PStats() // REMOVIDO
+      | retorno = PShow()
       | retorno = PSave()
       
       // Comandos da Imperativa 2

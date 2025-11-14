@@ -1,4 +1,4 @@
-package li2.plp.imperative2.command;
+package li2.plp.imperative2.util;
 
 import java.util.ArrayList;
 import java.util.Collections;

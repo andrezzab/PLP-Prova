@@ -1,28 +1,20 @@
-// Primeiro, carregue o CSV para a variável 'dados'
-LOAD "Testes/csvs/teste_drop.csv" AS dados;
+{
+    // 1. DECLARANDO O PROCEDIMENTO DENTRO DE UM BLOCO
+    proc analisarFuncionarios (string arquivo_csv, string nome_dataframe) {
+        LOAD arquivo_csv AS temp_df;
+        MEAN temp_df.salario AS media_salarial;
+        MEDIAN temp_df.salario AS mediana_salarial;
+        STD temp_df.idade AS desvio_idade;
+        FILTER temp_df WHERE idade > 30 AS seniores;
+        MEAN seniores.salario AS media_seniores;
+        SHOW media_salarial;
+        SHOW media_seniores;
+        {
+            var nome_dataframe = temp_df;
+        }
+    };
+}
 
-// Em seguida, execute as estatísticas (usando a nova sintaxe 'SHOW MEAN ...')
-SHOW MEAN dados.idade;
-SHOW MEDIAN dados.salario;
-SHOW STD dados.idade;
-SHOW VARIANCE dados.salario;
-SHOW MIN dados.salario;
-SHOW MAX dados.salario;
-SHOW RANGE dados.idade;
-SHOW QUARTILES dados.salario;
-SHOW MODE dados.salario;
-
-// 1. Conta quantos funcionários existem (usando 'COUNT')
-COUNT dados AS total_linhas;
-
-// Mostra a variável que acabou de ser criada
-SHOW total_linhas;
-
-// 2. Filtra (usando a sintaxe 'FILTER...INTO...WHERE')
-FILTER dados INTO funcionarios_seniores WHERE idade != 30;
-
-// Mostra o resultado do filtro
-SHOW funcionarios_seniores LIMIT 5;
-
-// 3. Salva o novo DataFrame em um arquivo
-SAVE funcionarios_seniores AS "Testes/results/funcionarios_seniores.csv"
+// 2. Executar (chamar) o PROCEDIMENTO FORA DO BLOCO
+call analisarFuncionarios("Testes/csvs/funcionarios_completo.csv", "func");
+call analisarFuncionarios("funcionarios_filial_2.csv", "func_filial_2");

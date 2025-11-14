@@ -5,6 +5,7 @@ import java.util.Map;
 import li2.plp.expressions2.expression.Id;
 import li2.plp.expressions2.expression.Valor;
 import li2.plp.expressions2.expression.ValorString;
+import li2.plp.imperative2.util.CalculadoraEstatisticas;
 
 public class Quartiles extends ComandoEstatisticoAbstrato {
 

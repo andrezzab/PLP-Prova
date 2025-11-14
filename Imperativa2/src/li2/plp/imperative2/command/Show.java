@@ -13,6 +13,7 @@ import li2.plp.imperative1.command.Comando;
 import li2.plp.imperative1.memory.AmbienteCompilacaoImperativa;
 import li2.plp.imperative1.memory.AmbienteExecucaoImperativa;
 import li2.plp.imperative2.memory.AmbienteExecucaoImperativa2;
+import li2.plp.imperative2.util.CalculadoraEstatisticas;
 import li2.plp.expressions2.expression.ValorDataFrame; // A "Matriz mxn"
 
 import java.util.ArrayList;

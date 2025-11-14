@@ -1,4 +1,4 @@
-package li2.plp.imperative2.command;
+package li2.plp.imperative2.parser;
 
 import li2.plp.expressions2.expression.Id;
 
@@ -8,12 +8,12 @@ import li2.plp.expressions2.expression.Id;
  * Uma regra do parser só pode retornar um objeto, então esta classe
  * serve para "empacotar" os dois Ids (variavel e coluna) juntos.
  */
-public class VarColuna {
+public class VarColumn {
 
     public final Id var;
     public final Id col;
 
-    public VarColuna(Id variavel, Id coluna) {
+    public VarColumn(Id variavel, Id coluna) {
         this.var = variavel;
         this.col = coluna;
     }

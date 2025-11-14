@@ -49,7 +49,6 @@ li2\plp\imperative2\command\Save.class
 li2\plp\imperative2\command\ListaExpressao.class
 li2\plp\imperative2\parser\Imp2ParserConstants.class
 li2\plp\imperative2\command\Std.class
-li2\plp\imperative2\command\CalculadoraEstatisticas.class
 li2\plp\expressions2\declaration\DecVariavel.class
 li2\plp\expressions2\expression\ExpMenos.class
 li2\plp\imperative2\command\Mode.class
@@ -58,6 +57,7 @@ li2\plp\imperative2\command\Quartiles.class
 li2\plp\imperative2\declaration\ListaDeclaracaoParametro.class
 li2\plp\expressions2\expression\ExpNot.class
 li2\plp\expressions2\expression\ExpSoma.class
+li2\plp\imperative2\command\Filter.class
 li2\plp\expressions2\expression\ValorDataFrame.class
 li2\plp\expressions2\memory\AmbienteExecucao.class
 li2\plp\expressions2\expression\ExpUnaria.class
@@ -70,9 +70,10 @@ li2\plp\expressions1\util\ToStringProvider.class
 li2\plp\imperative2\memory\ContextoExecucaoImperativa2.class
 li2\plp\expressions2\expression\ExpLt.class
 li2\plp\imperative1\command\Comando.class
+li2\plp\imperative2\command\Count.class
 li2\plp\expressions2\expression\ValorDouble.class
 li2\plp\imperative1\command\IfThenElse.class
-li2\plp\imperative2\command\Contagem.class
+li2\plp\imperative2\util\CalculadoraEstatisticas.class
 li2\plp\imperative2\command\Range.class
 li2\plp\imperative2\command\Max.class
 li2\plp\imperative2\command\ComandoEstatisticoAbstrato.class
@@ -80,7 +81,6 @@ li2\plp\expressions2\memory\IdentificadorJaDeclaradoException.class
 li2\plp\imperative1\memory\ListaValor.class
 li2\plp\imperative1\command\Skip.class
 li2\plp\expressions2\memory\AmbienteCompilacao.class
-li2\plp\imperative2\command\Filtro.class
 li2\plp\expressions2\memory\Ambiente.class
 li2\plp\imperative1\memory\EntradaVaziaException.class
 li2\plp\expressions2\expression\ExpDeclaracao.class
@@ -92,7 +92,7 @@ li2\plp\expressions2\memory\StackHandler.class
 li2\plp\expressions2\memory\IdentificadorNaoDeclaradoException.class
 li2\plp\expressions2\memory\Contexto.class
 li2\plp\imperative2\command\ChamadaProcedimento.class
-li2\plp\imperative2\command\VarColuna.class
+li2\plp\imperative2\parser\VarColumn.class
 li2\plp\expressions2\expression\ExpOr.class
 li2\plp\imperative2\command\Variance.class
 li2\plp\expressions2\expression\ValorInteiro.class

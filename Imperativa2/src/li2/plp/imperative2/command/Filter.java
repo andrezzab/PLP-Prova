@@ -20,7 +20,7 @@ import java.util.Map;
  * Este comando usa a lógica de "matriz mxn" (ValorDataFrame)
  * e o avaliador de expressões da I2.
  */
-public class Filtro implements Comando {
+public class Filter implements Comando {
 
     private Id idDataFrameOriginal;
     private Id idDataFrameNovo;
@@ -32,7 +32,7 @@ public class Filtro implements Comando {
      * @param idDestino O Id para o novo DataFrame filtrado (ex: "seniores")
      * @param condicao A expressão de filtro (ex: "idade > 30")
      */
-    public Filtro(Id idOrigem, Id idDestino, Expressao condicao) {
+    public Filter(Id idOrigem, Id idDestino, Expressao condicao) {
         this.idDataFrameOriginal = idOrigem;
         this.idDataFrameNovo = idDestino;
         this.condicao = condicao;
