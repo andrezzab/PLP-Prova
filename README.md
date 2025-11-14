@@ -66,6 +66,25 @@ SHOW func LIMIT 10;
 SHOW STATS func.salario;
 SHOW STATS func.idade;
 SAVE funcionarios_seniores AS "seniores.csv";
+
+-- Além disso, o usuário pode declarar um procedimento e depois chamar esse procedimento para as entradas que ele quiser
+{
+    // DECLARANDO O PROCEDIMENTO
+    PROC analisarFuncionarios (STRING arquivo_csv, STRING nome_dataframe) {
+        LOAD arquivo_csv AS temp_df;
+        MEAN temp_df.salario AS media_salarial;
+        MEDIAN temp_df.salario AS mediana_salarial;
+        STD temp_df.idade AS desvio_idade;
+        FILTER temp_df INTO seniores WHERE idade > 30;
+        MEAN seniores.salario AS media_seniores;
+        SHOW media_salarial;
+        SHOW media_seniores
+    };
+
+    // CHAMANDO NO MESMO BLOCO (2 vezes)
+    CALL analisarFuncionarios("Testes/csvs/funcionarios_completo.csv", "func");
+    CALL analisarFuncionarios("Testes/csvs/funcionarios_completo.csv", "func2")
+}
 ```
 ## BNF atualizada:
 ```sql
