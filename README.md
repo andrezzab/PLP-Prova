@@ -144,7 +144,7 @@ DeclaracaoProcedimento ::= “proc” Id “(“ [ ListaDeclaracaoParametro ] �
 ListaDeclaracaoParametro ::= Tipo Id
        | Tipo Id “,” ListaDeclaracaoParametro
 
-Tipo ::= “string” | “int” | “boolean”
+Tipo ::= “string” | “int” | “boolean” | "double"
 
 While ::= “while” Expressao “do” Comando
 
@@ -162,12 +162,26 @@ ListaExpressao ::= Expressao | Expressao, ListaExpressao
 ComandoEstatistico ::= ComandoLoad
        | ComandoFiltro
        | ComandoCalculo
+       | ComandoShow
+       | ComandoSave
 
 ComandoLoad ::= "LOAD" StringLiteral ["AS" Id]
 
-ComandoFiltro ::= "FILTER" Id ON StringLiteral
+ComandoFiltro ::= "FILTER" Id INTO Id "WHERE" Expressao
 
-ComandoCalculo ::= ("MAX" | "MEAN" | "MEDIAN" | "MIN" | "MODE" | "STD" | "VARIANCE" | "COUNT") Id ON StringLiteral
+ComandoCalculo ::= AnaliseColuna | ContagemTabela
+
+ComandoShow ::= "SHOW" Expressao | "SHOW" OpEstatistica ReferenciaColuna
+
+ComandoSave ::= "SAVE" Expressao "AS" Expressao
+
+AnaliseColuna ::= OpEstatistica ReferenciaColuna "AS" Id
+
+ContagemTabela ::= "COUNT" Id "AS" Id
+
+ReferenciaColuna ::= Expressao"."Id
+
+OpEstatistica ::= "MAX" | "MEAN" | "MEDIAN" | "MIN" | "MODE" | "STD" | "VAR" | "RANGE" | "QUARTILES"
 
 // Definições auxiliares
 
