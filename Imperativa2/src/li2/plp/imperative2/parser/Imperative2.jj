@@ -339,13 +339,13 @@ TOKEN : /* OPERATORS */
  */
 
 Programa Input() :
-{ 
+{
     Programa retorno;
 }
 {
-   retorno = PPrograma() <EOF>
-   { 
-    return retorno; 
+   retorno = PPrograma() [ <RBRACE> ] <EOF>
+   {
+    return retorno;
    }
 }
 
