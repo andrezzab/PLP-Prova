@@ -139,6 +139,14 @@ public class Imp2Parser implements Imp2ParserConstants {
   static final public Programa Input() throws ParseException {
     Programa retorno;
     retorno = PPrograma();
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case RBRACE:
+      jj_consume_token(RBRACE);
+      break;
+    default:
+      jj_la1[0] = jj_gen;
+      ;
+    }
     jj_consume_token(0);
     {if (true) return retorno;}
     throw new Error("Missing return statement in function");
@@ -186,7 +194,7 @@ public class Imp2Parser implements Imp2ParserConstants {
                 retorno = PComandoSimples();
         break;
       default:
-        jj_la1[0] = jj_gen;
+        jj_la1[1] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -215,7 +223,7 @@ public class Imp2Parser implements Imp2ParserConstants {
       retorno = PWrite();
       break;
     default:
-      jj_la1[1] = jj_gen;
+      jj_la1[2] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -293,7 +301,7 @@ public class Imp2Parser implements Imp2ParserConstants {
         idTok = jj_consume_token(IDENTIFIER);
         break;
       default:
-        jj_la1[2] = jj_gen;
+        jj_la1[3] = jj_gen;
         ;
       }
             id = (idTok != null) ? new Id(idTok.image) : null;
@@ -310,7 +318,7 @@ public class Imp2Parser implements Imp2ParserConstants {
             {if (true) return new Load(pathExpr, id);}
       break;
     default:
-      jj_la1[3] = jj_gen;
+      jj_la1[4] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -442,7 +450,7 @@ public class Imp2Parser implements Imp2ParserConstants {
       idDestino = jj_consume_token(IDENTIFIER);
       break;
     default:
-      jj_la1[4] = jj_gen;
+      jj_la1[5] = jj_gen;
       ;
     }
         Id dest = (idDestino != null) ? new Id(idDestino.toString()) : null;
@@ -527,13 +535,13 @@ public class Imp2Parser implements Imp2ParserConstants {
           limiteExp = PExpPrimaria();
           break;
         default:
-          jj_la1[5] = jj_gen;
+          jj_la1[6] = jj_gen;
           ;
         }
           retorno = new Show(new Id(idVar.toString()), limiteExp);
         break;
       default:
-        jj_la1[6] = jj_gen;
+        jj_la1[7] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -608,7 +616,7 @@ public class Imp2Parser implements Imp2ParserConstants {
                 {if (true) return new ValorBooleano(true);}
       break;
     default:
-      jj_la1[7] = jj_gen;
+      jj_la1[8] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -642,7 +650,7 @@ public class Imp2Parser implements Imp2ParserConstants {
       retorno = PValorString();
       break;
     default:
-      jj_la1[8] = jj_gen;
+      jj_la1[9] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -702,7 +710,7 @@ public class Imp2Parser implements Imp2ParserConstants {
       jj_consume_token(RPAREN);
       break;
     default:
-      jj_la1[9] = jj_gen;
+      jj_la1[10] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -723,7 +731,7 @@ public class Imp2Parser implements Imp2ParserConstants {
       retorno = PExpLength();
       break;
     default:
-      jj_la1[10] = jj_gen;
+      jj_la1[11] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -912,7 +920,7 @@ public class Imp2Parser implements Imp2ParserConstants {
         retorno = PExpPrimaria();
         break;
       default:
-        jj_la1[11] = jj_gen;
+        jj_la1[12] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -1001,7 +1009,7 @@ public class Imp2Parser implements Imp2ParserConstants {
       retorno = PChamadaProcedimento();
       break;
     default:
-      jj_la1[12] = jj_gen;
+      jj_la1[13] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1069,7 +1077,7 @@ public class Imp2Parser implements Imp2ParserConstants {
 
         break;
       default:
-        jj_la1[13] = jj_gen;
+        jj_la1[14] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -1098,7 +1106,7 @@ public class Imp2Parser implements Imp2ParserConstants {
         jj_consume_token(RPAREN);
         break;
       default:
-        jj_la1[14] = jj_gen;
+        jj_la1[15] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -1144,7 +1152,7 @@ public class Imp2Parser implements Imp2ParserConstants {
         defProcedimento = PDefProcedimento();
         break;
       default:
-        jj_la1[15] = jj_gen;
+        jj_la1[16] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -1178,7 +1186,7 @@ public class Imp2Parser implements Imp2ParserConstants {
       jj_consume_token(RBRACE);
       break;
     default:
-      jj_la1[16] = jj_gen;
+      jj_la1[17] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1205,7 +1213,7 @@ public class Imp2Parser implements Imp2ParserConstants {
               tipo = TipoPrimitivo.STRING;
       break;
     default:
-      jj_la1[17] = jj_gen;
+      jj_la1[18] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -1229,7 +1237,7 @@ public class Imp2Parser implements Imp2ParserConstants {
         ;
         break;
       default:
-        jj_la1[18] = jj_gen;
+        jj_la1[19] = jj_gen;
         break label_1;
       }
       jj_consume_token(COMMA);
@@ -1262,7 +1270,7 @@ public class Imp2Parser implements Imp2ParserConstants {
                            lista = new ListaExpressao(exp);
       break;
     default:
-      jj_la1[19] = jj_gen;
+      jj_la1[20] = jj_gen;
       ;
     }
     label_2:
@@ -1272,7 +1280,7 @@ public class Imp2Parser implements Imp2ParserConstants {
         ;
         break;
       default:
-        jj_la1[20] = jj_gen;
+        jj_la1[21] = jj_gen;
         break label_2;
       }
       jj_consume_token(COMMA);
@@ -2815,7 +2823,7 @@ public class Imp2Parser implements Imp2ParserConstants {
   static private Token jj_scanpos, jj_lastpos;
   static private int jj_la;
   static private int jj_gen;
-  static final private int[] jj_la1 = new int[21];
+  static final private int[] jj_la1 = new int[22];
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static private int[] jj_la1_2;
@@ -2825,13 +2833,13 @@ public class Imp2Parser implements Imp2ParserConstants {
       jj_la1_init_2();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0xf63b8000,0x180000,0x8000000,0x4008000,0x8000000,0x0,0x0,0x6000,0x6000,0x6000,0x1800,0x6000,0xf63b8000,0xf63b8000,0x1008000,0x1000000,0x0,0x0,0x0,0x7800,0x0,};
+      jj_la1_0 = new int[] {0x0,0xf63b8000,0x180000,0x8000000,0x4008000,0x8000000,0x0,0x0,0x6000,0x6000,0x6000,0x1800,0x6000,0xf63b8000,0xf63b8000,0x1008000,0x1000000,0x0,0x0,0x0,0x7800,0x0,};
    }
    private static void jj_la1_init_1() {
-      jj_la1_1 = new int[] {0xa4003bf,0x0,0x0,0x0,0x0,0x40,0x400000,0x0,0x188000,0x2588000,0x0,0x2588000,0xa4003bf,0xa4003bf,0x2000000,0x0,0x8007000,0x7000,0x0,0x2588000,0x0,};
+      jj_la1_1 = new int[] {0x10000000,0xa4003bf,0x0,0x0,0x0,0x0,0x40,0x400000,0x0,0x188000,0x2588000,0x0,0x2588000,0xa4003bf,0xa4003bf,0x2000000,0x0,0x8007000,0x7000,0x0,0x2588000,0x0,};
    }
    private static void jj_la1_init_2() {
-      jj_la1_2 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x40000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1,0x40000,0x1,};
+      jj_la1_2 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x40000,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x1,0x40000,0x1,};
    }
   static final private JJCalls[] jj_2_rtns = new JJCalls[29];
   static private boolean jj_rescan = false;
@@ -2855,7 +2863,7 @@ public class Imp2Parser implements Imp2ParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 21; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 22; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2870,7 +2878,7 @@ public class Imp2Parser implements Imp2ParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 21; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 22; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2888,7 +2896,7 @@ public class Imp2Parser implements Imp2ParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 21; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 22; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2899,7 +2907,7 @@ public class Imp2Parser implements Imp2ParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 21; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 22; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2916,7 +2924,7 @@ public class Imp2Parser implements Imp2ParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 21; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 22; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -2926,7 +2934,7 @@ public class Imp2Parser implements Imp2ParserConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 21; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 22; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -3043,7 +3051,7 @@ public class Imp2Parser implements Imp2ParserConstants {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 21; i++) {
+    for (int i = 0; i < 22; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {

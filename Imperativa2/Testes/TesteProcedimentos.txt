@@ -1,3 +1,5 @@
+//“{“ “proc” Id “(“ [ ListaDeclaracaoParametro ] “)” “{“ Comando “}” “;” “call” Id “(“ [ ListaExpressao ] “)” “}”
+
 {
     // DECLARANDO O PROCEDIMENTO
     PROC analisarFuncionarios (STRING arquivo_csv, STRING nome_dataframe) {
