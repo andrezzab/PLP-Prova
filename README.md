@@ -155,7 +155,7 @@ DeclaracaoProcedimento ::= "proc" Id "(" [ ListaDeclaracaoParametro ] ")" "{" Co
 ListaDeclaracaoParametro ::= Tipo Id
                            | Tipo Id "," ListaDeclaracaoParametro
 
-Tipo ::= "string" | "int" | "boolean" | "double"
+Tipo ::= "string" | "int" | "boolean" | "double" // ---> ADICIONADO double
 
 While ::= "while" Expressao "do" Comando
 
