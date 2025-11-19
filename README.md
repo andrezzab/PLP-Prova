@@ -176,7 +176,7 @@ ComandoEstatistico ::= ComandoLoad
 | ComandoShow
 | ComandoSave
 
-ComandoLoad ::= "LOAD" Expressao "AS" Id
+ComandoLoad ::= "LOAD" StringLiteral "AS" Id
 
 ComandoFiltro ::= "FILTER" Id INTO Id "WHERE" Expressao
 
@@ -184,7 +184,7 @@ ComandoCalculo ::= AnaliseColuna | ContagemTabela
 
 Comando Show ::= "SHOW" Expressao    | "SHOW" OpEstatistica ReferenciaColuna
 
-ComandoSave ::= "SAVE" Expressao "AS" Expressao
+ComandoSave ::= "SAVE" Expressao "AS" StringLiteral
 
 AnaliseColuna ::= OpEstatistica ReferenciaColuna "AS" Id
 
