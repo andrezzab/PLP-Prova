@@ -34,21 +34,20 @@ A DSL é uma **extensão da linguagem imperativa 2 do JavaCC**, permitindo que p
 A sintaxe da DSL foi projetada para ser simples e declarativa:
 
 ```sql
-{
 // --- Comandos de Dados (DSL) ---
 
 // 1. Carregar dados
 // Sintaxe: LOAD Expressao AS Id (Expressao pode ser um StringLiteral)
-LOAD "funcionarios.csv" AS func;
-LOAD "vendas.csv" AS vendas;
+LOAD "Testes/csvs/funcionarios_completo.csv" AS func;
+LOAD "Testes/csvs/vendas.csv" AS vendas;
 
 // 2. Análise estatística com atribuição (todos devem ter "AS Id")
 // Sintaxe: OpEstatistica ReferenciaColuna AS Id
 MEAN func.salario AS media_salarial;
 MEDIAN func.salario AS mediana_salarial;
-MODE func.departamento AS departamento_mais_comum;
+MODE func.anos_experiencia AS experiencia_mais_comum;
 STD func.idade AS desvio_idade;
-VAR func.salario AS variancia_salario; // Adicionando VAR da nova OpEstatistica
+VARIANCE func.salario AS variancia_salario; 
 MIN func.salario AS menor_salario;
 MAX func.salario AS maior_salario;
 RANGE func.idade AS amplitude_idades;
@@ -60,9 +59,9 @@ COUNT vendas AS total_vendas;
 
 // 4. Filtragem de dados para criar novos subconjuntos
 // Sintaxe CORRIGIDA: FILTER Id INTO Id WHERE Expressao
-FILTER func INTO funcionarios_seniores WHERE func.idade > 30;
-FILTER func INTO func_ti WHERE func.departamento == "TI";
-FILTER vendas INTO vendas_grandes WHERE vendas.valor > 1000.5; // Usando ValorDouble
+FILTER func INTO funcionarios_seniores WHERE idade > 30;
+FILTER func INTO func_ti WHERE departamento == "TI";
+FILTER vendas INTO vendas_grandes WHERE valor > 1000.5; // Usando ValorDouble
 
 // 5. Análise nos dados filtrados
 MEAN funcionarios_seniores.salario AS media_seniores;
@@ -80,32 +79,24 @@ SHOW MIN func.idade;
 // SAVE Expressao AS Expressao
 SAVE funcionarios_seniores AS "seniores.csv";
 
+//“{“ “proc” Id “(“ [ ListaDeclaracaoParametro ] “)” “{“ Comando “}” “;” “call” Id “(“ [ ListaExpressao ] “)” “}”
 
-// --- Bloco de Procedimentos ---
+{
+    // DECLARANDO O PROCEDIMENTO
+    PROC analisarFuncionarios (STRING arquivo_csv, STRING nome_dataframe) {
+        LOAD arquivo_csv AS temp_df;
+        MEAN temp_df.salario AS media_salarial;
+        MEDIAN temp_df.salario AS mediana_salarial;
+        STD temp_df.idade AS desvio_idade;
+        FILTER temp_df INTO seniores WHERE idade > 30;
+        MEAN seniores.salario AS media_seniores;
+        SHOW media_salarial;
+        SHOW media_seniores
+    };
 
-proc analisarFuncionarios (string arquivo_csv) {
-    // LOAD Expressao AS Id
-    LOAD arquivo_csv AS temp_df;
-    
-    MEAN temp_df.salario AS media_salarial;
-    MEDIAN temp_df.salario AS mediana_salarial;
-    STD temp_df.idade AS desvio_idade;
-    
-    // Filtro dentro do PROC (Sintaxe FILTER ... INTO ... WHERE)
-    FILTER temp_df INTO seniores WHERE temp_df.idade > 30;
-    MEAN seniores.salario AS media_seniores;
-    
-    // Mostrar resultados de variáveis atribuídas (SHOW Expressao)
-    SHOW media_salarial;
-    SHOW media_seniores;
-    
-    // Exemplo de IO padrão
-    write("Analise de funcionarios concluida.");
-};
-
-// Chamando o procedimento
-CALL analisarFuncionarios("Testes/csvs/funcionarios_completo.csv");
-CALL analisarFuncionarios("Testes/csvs/vendas_completo.csv");
+    // CHAMANDO NO MESMO BLOCO (2 vezes)
+    CALL analisarFuncionarios("Testes/csvs/funcionarios_completo.csv", "func");
+    CALL analisarFuncionarios("Testes/csvs/funcionarios_completo.csv", "func2")
 }
 ```
 ## BNF atualizada:
@@ -179,20 +170,19 @@ ListaExpressao ::= Expressao | Expressao, ListaExpressao
 
 // --- SEÇÃO DA DSL DE DADOS ---
 
-ComandoEstatistico ::= ComandoLoad
-                     | ComandoFiltro
-                     | ComandoCalculo
-                     | ComandoShow
-                     | ComandoSave
+ComandoEstatistico ::= ComandoLoad        
+| ComandoFiltro        
+| ComandoCalculo
+| ComandoShow
+| ComandoSave
 
-ComandoLoad ::= "LOAD" StringLiteral ["AS" Id]
+ComandoLoad ::= "LOAD" Expressao "AS" Id
 
-ComandoFiltro ::= "FILTER" Id "AS" Id "WHERE" Expressao
+ComandoFiltro ::= "FILTER" Id INTO Id "WHERE" Expressao
 
 ComandoCalculo ::= AnaliseColuna | ContagemTabela
 
-ComandoShow ::= "SHOW" Expressao ["LIMIT" ValorInteiro]
-              | "SHOW" "STATS" ReferenciaColuna
+Comando Show ::= "SHOW" Expressao    | "SHOW" OpEstatistica ReferenciaColuna
 
 ComandoSave ::= "SAVE" Expressao "AS" Expressao
 
@@ -200,10 +190,9 @@ AnaliseColuna ::= OpEstatistica ReferenciaColuna "AS" Id
 
 ContagemTabela ::= "COUNT" Id "AS" Id
 
-ReferenciaColuna ::= Expressao"."Id
+ReferenciaColuna ::= Expressao "." Id
 
-OpEstatistica ::= "MAX" | "MEAN" | "MEDIAN" | "MIN" | "MODE" 
-                | "STD" | "VAR" | "RANGE" | "QUARTILES"
+OpEstatistica ::= "MEAN" | "MEDIAN" | "MODE" | "STD" | “VAR” | "MIN" | "MAX" | "RANGE" | "QUARTILES“
 
 // --- Definições Auxiliares ---
 
