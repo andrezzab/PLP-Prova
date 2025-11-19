@@ -7,7 +7,6 @@ import li2.plp.expressions2.expression.ValorString;
 import li2.plp.imperative1.command.Comando;
 import li2.plp.imperative1.memory.AmbienteCompilacaoImperativa;
 import li2.plp.imperative1.memory.AmbienteExecucaoImperativa;
-import li2.plp.imperative2.memory.AmbienteExecucaoImperativa2;
 import li2.plp.expressions2.expression.ValorDataFrame;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -36,18 +35,16 @@ public class Save implements Comando {
 
     @Override
     public AmbienteExecucaoImperativa executar(AmbienteExecucaoImperativa amb) throws RuntimeException {
-        // 1. Faz o cast para o ambiente correto
-        AmbienteExecucaoImperativa2 ambiente = (AmbienteExecucaoImperativa2) amb;
 
         // 2. Avalia a expressão do caminho para obter um ValorString
-        Valor valorPath = pathExpressao.avaliar(ambiente);
+        Valor valorPath = pathExpressao.avaliar(amb);
         if (!(valorPath instanceof ValorString)) {
             throw new RuntimeException("Erro: O caminho do SAVE deve ser uma string.");
         }
         String path = ((ValorString) valorPath).valor();
 
         // 3. Pega o DataFrame da memória
-        Valor valorDf = ambiente.get(idDataFrame);
+        Valor valorDf = amb.get(idDataFrame);
         if (!(valorDf instanceof ValorDataFrame)) {
             throw new RuntimeException("Erro: Variável '" + idDataFrame.getIdName() + "' não é um DataFrame.");
         }
@@ -81,8 +78,8 @@ public class Save implements Comando {
 
         System.out.println(">> DataFrame '" + idDataFrame.getIdName() + "' salvo em '" + path + "'.");
 
-        // 5. Retorna o ambiente (não foi modificado, mas a interface exige)
-        return ambiente;
+        // 5. Retorna o amb (não foi modificado, mas a interface exige)
+        return amb;
     }
 
     @Override
