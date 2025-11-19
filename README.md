@@ -192,7 +192,7 @@ ContagemTabela ::= "COUNT" Expressao "AS" Id
 
 ReferenciaColuna ::= Expressao "." Id
 
-OpEstatistica ::= "MEAN" | "MEDIAN" | "MODE" | "STD" | “VARIANCE” | "MIN" | "MAX" | "RANGE" | "QUARTILES“
+OpEstatistica ::= "MEAN" | "MEDIAN" | "MODE" | "STD" | “VARIANCE” | "MIN" | "MAX" | "RANGE" | "QUARTILES"
 
 // --- Definições Auxiliares ---
 
