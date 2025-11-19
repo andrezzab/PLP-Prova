@@ -12,9 +12,6 @@ import li2.plp.expressions2.expression.ValorDouble;
 import li2.plp.expressions2.expression.ValorInteiro;
 import li2.plp.expressions2.expression.ValorDataFrame; // Importa a "matriz"
 
-// Imports do imperative2 (para o novo ambiente e a "matriz")
-import li2.plp.imperative2.memory.AmbienteExecucaoImperativa2;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -50,17 +47,11 @@ public abstract class ComandoEstatisticoAbstrato implements Comando { // Impleme
      */
     @Override
     public AmbienteExecucaoImperativa executar(AmbienteExecucaoImperativa amb) throws RuntimeException {
-        
-        // 1. Faz o cast para o AmbienteExecucaoImperativa2, como você precisa.
-        //    Isto também assume que AmbienteExecucaoImperativa2 
-        //    estende AmbienteExecucao (de expressions2) em algum ponto
-        //    para que .get() e .map() funcionem com 'Valor'.
-        AmbienteExecucaoImperativa2 ambiente = (AmbienteExecucaoImperativa2) amb;
 
-        // 2. Pega o ValorDataFrame do ambiente
-        //    Aqui, assumimos que 'ambiente' (sendo do expressions2)
+        // 2. Pega o ValorDataFrame do amb
+        //    Aqui, assumimos que 'amb' (sendo do expressions2)
         //    pode nos dar um 'Valor'.
-        Valor valor = ambiente.get(idVariavelCsv);
+        Valor valor = amb.get(idVariavelCsv);
         if (!(valor instanceof ValorDataFrame)) {
             throw new RuntimeException("Erro: Variável '" + idVariavelCsv.getIdName() + "' não é um DataFrame.");
         }
@@ -94,13 +85,13 @@ public abstract class ComandoEstatisticoAbstrato implements Comando { // Impleme
         // 5. Delega o cálculo para a classe filha (Mean, Median, Std...)
         Valor resultado = calcular(numeros);
 
-        // 6. Salva o resultado no ambiente
-        ambiente.map(idVariavelDestino, resultado);
+        // 6. Salva o resultado no amb
+        amb.map(idVariavelDestino, resultado);
         
         System.out.println(">> " + this.getNomeEstatistica() + " de " + colName + ": " + resultado.toString());
         
-        // 7. Retorna o ambiente modificado, conforme exigido pela interface
-        return ambiente;
+        // 7. Retorna o amb modificado, conforme exigido pela interface
+        return amb;
     }
     
     /**

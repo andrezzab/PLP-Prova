@@ -6,7 +6,6 @@ import li2.plp.expressions2.expression.ValorInteiro;
 import li2.plp.imperative1.command.Comando;
 import li2.plp.imperative1.memory.AmbienteCompilacaoImperativa;
 import li2.plp.imperative1.memory.AmbienteExecucaoImperativa;
-import li2.plp.imperative2.memory.AmbienteExecucaoImperativa2;
 import li2.plp.expressions2.expression.ValorDataFrame;
 
 /**
@@ -39,11 +38,9 @@ public class Count implements Comando {
 
     @Override
     public AmbienteExecucaoImperativa executar(AmbienteExecucaoImperativa amb) throws RuntimeException {
-        // 1. Faz o cast para o ambiente correto
-        AmbienteExecucaoImperativa2 ambiente = (AmbienteExecucaoImperativa2) amb;
 
-        // 2. Pega o DataFrame original do ambiente
-        Valor val = ambiente.get(idDataFrame);
+        // 2. Pega o DataFrame original do amb
+        Valor val = amb.get(idDataFrame);
         if (!(val instanceof ValorDataFrame)) {
             throw new RuntimeException("Erro: Variável '" + idDataFrame.getIdName() + "' não é um DataFrame.");
         }
@@ -53,16 +50,16 @@ public class Count implements Comando {
         int contagem = df.getRows().size();
         ValorInteiro resultado = new ValorInteiro(contagem);
 
-        // 4. Salva o resultado no ambiente SE um 'AS' foi fornecido
+        // 4. Salva o resultado no amb SE um 'AS' foi fornecido
         if (idVariavelDestino != null) {
-            ambiente.map(idVariavelDestino, resultado);
+            amb.map(idVariavelDestino, resultado);
             System.out.println(">> Contagem de '" + idDataFrame.getIdName() + "': " + contagem + " (salvo em '" + idVariavelDestino.getIdName() + "')");
         } else {
              System.out.println(">> Contagem de '" + idDataFrame.getIdName() + "': " + contagem);
         }
 
-        // 5. Retorna o ambiente modificado
-        return ambiente;
+        // 5. Retorna o amb modificado
+        return amb;
     }
 
     @Override

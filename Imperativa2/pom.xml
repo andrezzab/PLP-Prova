@@ -42,7 +42,7 @@
         <artifactId>exec-maven-plugin</artifactId>
         <configuration>
           <mainClass>li2.plp.imperative2.parser.Imp2Parser</mainClass>
-          <commandlineArgs>input</commandlineArgs>
+          <commandlineArgs>input.txt</commandlineArgs>
         </configuration>
       </plugin>
       <plugin>

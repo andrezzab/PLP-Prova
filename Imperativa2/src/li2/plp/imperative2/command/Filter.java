@@ -8,7 +8,6 @@ import li2.plp.expressions2.expression.ValorBooleano;
 import li2.plp.imperative1.command.Comando;
 import li2.plp.imperative1.memory.AmbienteCompilacaoImperativa;
 import li2.plp.imperative1.memory.AmbienteExecucaoImperativa;
-import li2.plp.imperative2.memory.AmbienteExecucaoImperativa2;
 import li2.plp.expressions2.expression.ValorDataFrame;
 
 import java.util.ArrayList;
@@ -40,11 +39,9 @@ public class Filter implements Comando {
 
     @Override
     public AmbienteExecucaoImperativa executar(AmbienteExecucaoImperativa amb) throws RuntimeException {
-        // 1. Faz o cast para o ambiente correto
-        AmbienteExecucaoImperativa2 ambiente = (AmbienteExecucaoImperativa2) amb;
 
-        // 2. Pega o DataFrame original do ambiente
-        Valor val = ambiente.get(idDataFrameOriginal);
+        // 2. Pega o DataFrame original do amb
+        Valor val = amb.get(idDataFrameOriginal);
         if (!(val instanceof ValorDataFrame)) {
             throw new RuntimeException("Erro: Variável '" + idDataFrameOriginal.getIdName() + "' não é um DataFrame.");
         }
@@ -57,23 +54,23 @@ public class Filter implements Comando {
         // 4. Itera pelas linhas do DataFrame original
         for (Map<String, Valor> linha : dfOriginal.getRows()) {
             
-            // 5. A MÁGICA: Injeta as colunas da linha no ambiente
-            ambiente.incrementa(); // Cria novo escopo
+            // 5. A MÁGICA: Injeta as colunas da linha no amb
+            amb.incrementa(); // Cria novo escopo
             for (String nomeColuna : schema.keySet()) {
                 // Mapeia a coluna (ex: "idade") para seu valor (ex: ValorInteiro(25))
-                ambiente.map(new Id(nomeColuna), linha.get(nomeColuna));
+                amb.map(new Id(nomeColuna), linha.get(nomeColuna));
             }
 
-            // 6. Avalia a expressão (ex: "idade > 30") NESSE ambiente
-            Valor resultado = condicao.avaliar(ambiente);
+            // 6. Avalia a expressão (ex: "idade > 30") NESSE amb
+            Valor resultado = condicao.avaliar(amb);
             if (!(resultado instanceof ValorBooleano)) {
-                 ambiente.restaura(); // Limpa o escopo antes de lançar o erro
+                 amb.restaura(); // Limpa o escopo antes de lançar o erro
                  throw new RuntimeException("Erro: A expressão WHERE deve resultar em um booleano.");
             }
             boolean condicaoSatisfeita = ((ValorBooleano) resultado).valor();
 
-            // 7. Limpa o ambiente (remove o escopo da linha)
-            ambiente.restaura();
+            // 7. Limpa o amb (remove o escopo da linha)
+            amb.restaura();
 
             // 8. Se a condição for verdadeira, salva a linha
             if (condicaoSatisfeita) {
@@ -84,13 +81,13 @@ public class Filter implements Comando {
         // 9. Cria o novo ValorDataFrame com as linhas filtradas
         ValorDataFrame dfNovo = dfOriginal.createNew(linhasFiltradas);
         
-        // 10. Mapeia o novo DataFrame no ambiente
-        ambiente.map(idDataFrameNovo, dfNovo);
+        // 10. Mapeia o novo DataFrame no amb
+        amb.map(idDataFrameNovo, dfNovo);
 
         System.out.println(">> Filtro aplicado. Novo DataFrame '" + idDataFrameNovo.getIdName() + "' criado com " + linhasFiltradas.size() + " linhas.");
 
-        // 11. Retorna o ambiente modificado
-        return ambiente;
+        // 11. Retorna o amb modificado
+        return amb;
     }
 
     @Override

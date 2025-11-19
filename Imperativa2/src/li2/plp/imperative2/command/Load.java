@@ -1,29 +1,23 @@
 package li2.plp.imperative2.command;
 
+import li2.plp.expressions1.util.Tipo;
 import li2.plp.expressions2.expression.Expressao;
 import li2.plp.expressions2.expression.Id;
 import li2.plp.expressions2.expression.Valor;
 import li2.plp.expressions2.expression.ValorString;
-import li2.plp.expressions2.expression.ValorDataFrame;
-import li2.plp.expressions1.util.Tipo;
 import li2.plp.imperative1.command.Comando;
 import li2.plp.imperative1.memory.AmbienteCompilacaoImperativa;
 import li2.plp.imperative1.memory.AmbienteExecucaoImperativa;
-import li2.plp.imperative2.memory.AmbienteExecucaoImperativa2;
 import li2.plp.imperative2.util.ParserCSV;
+import li2.plp.expressions2.expression.ValorDataFrame;
 
 import java.util.List;
 import java.util.Map;
 
-/**
- * ESTA É A IMPLEMENTAÇÃO CORRETA DO COMANDO LOAD.
- * Ele implementa a interface 'Comando' da imperative1.
- * Ele lê o arquivo CSV e armazena um 'ValorDataFrame' no ambiente.
- */
 public class Load implements Comando {
 
-    private Expressao pathExpressao; // O caminho do arquivo (ex: "dados.csv")
-    private Id idDataFrame;          // O nome da variável (ex: "dados")
+    private Expressao pathExpressao;
+    private Id idDataFrame;
 
     public Load(Expressao path, Id id) {
         this.pathExpressao = path;
@@ -31,47 +25,45 @@ public class Load implements Comando {
     }
 
     @Override
-    public AmbienteExecucaoImperativa executar(AmbienteExecucaoImperativa amb) throws RuntimeException {
-        // 1. Faz o cast para o ambiente correto, que pode armazenar 'Valor'
-        AmbienteExecucaoImperativa2 ambiente = (AmbienteExecucaoImperativa2) amb;
-
-        // 2. Avalia a expressão do caminho para obter a String
-        Valor val = this.pathExpressao.avaliar(ambiente);
-        if (!(val instanceof ValorString)) {
-            throw new RuntimeException("Erro: O caminho do LOAD deve ser uma String.");
-        }
-        String path = ((ValorString) val).valor();
+    public AmbienteExecucaoImperativa executar(AmbienteExecucaoImperativa amb) {
+        // NÃO PRECISA DE CAST!
+        // AmbienteExecucaoImperativa já sabe fazer map(Id, Valor)
 
         try {
-            // 3. CHAMA O PARSER DE CSV
-            ParserCSV parser = new ParserCSV(path);
+            // 1. Avalia a expressão usando o ambiente genérico
+            Valor val = this.pathExpressao.avaliar(amb);
             
-            // 4. Obtém os dados do parser
+            if (!(val instanceof ValorString)) {
+                throw new RuntimeException("Erro: O caminho do LOAD deve ser uma String.");
+            }
+            
+            // Nota: Verifique se sua classe ValorString usa .valor() ou .getValor()
+            String path = ((ValorString) val).valor(); 
+
+            // 2. Lê o CSV
+            ParserCSV parser = new ParserCSV(path);
             Map<String, Tipo> schema = parser.getSchema();
             List<Map<String, Valor>> rows = parser.getRows();
 
-            // 5. CRIA O OBJETO "MATRIZ MXN" (ValorDataFrame)
+            // 3. Cria o DataFrame
             ValorDataFrame dataFrame = new ValorDataFrame(schema, rows);
 
-            // 6. MAPA O OBJETO NO AMBIENTE
-            // Esta é a linha que corrige o seu bug!
-            ambiente.map(this.idDataFrame, dataFrame);
+            // 4. Mapa no ambiente BASE
+            // O método map(Id, Valor) existe desde a Imperativa 1 / Expressões 2
+            amb.map(this.idDataFrame, dataFrame);
 
-            // 7. Imprime a mensagem de sucesso que você já via
-            System.out.println("Dataset '" + this.idDataFrame.getIdName() + "' carregado com sucesso.");
+            System.out.println("Dataset '" + this.idDataFrame.toString() + "' carregado com sucesso.");
 
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao carregar CSV '" + path + "': " + e.getMessage());
+            // Captura VariavelJaDeclaradaException, IOException, etc.
+            throw new RuntimeException("Erro ao executar LOAD: " + e.getMessage());
         }
 
-        // 8. Retorna o ambiente modificado
-        return ambiente;
+        return amb;
     }
 
     @Override
-    public boolean checaTipo(AmbienteCompilacaoImperativa amb) throws RuntimeException {
-        // TODO: Implementar checagem de tipo (ex: path é String)
-        // e mapear 'idDataFrame' para o novo 'TipoDataFrame' no 'amb'
-        return true;
+    public boolean checaTipo(AmbienteCompilacaoImperativa amb) {
+        return this.pathExpressao.checaTipo(amb);
     }
 }
