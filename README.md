@@ -34,56 +34,78 @@ A DSL é uma **extensão da linguagem imperativa 2 do JavaCC**, permitindo que p
 A sintaxe da DSL foi projetada para ser simples e declarativa:
 
 ```sql
--- Carregar dados de dois arquivos CSV diferentes
+{
+// --- Comandos de Dados (DSL) ---
+
+// 1. Carregar dados
+// Sintaxe: LOAD Expressao AS Id (Expressao pode ser um StringLiteral)
 LOAD "funcionarios.csv" AS func;
 LOAD "vendas.csv" AS vendas;
 
--- Análise estatística dos funcionários
+// 2. Análise estatística com atribuição (todos devem ter "AS Id")
+// Sintaxe: OpEstatistica ReferenciaColuna AS Id
 MEAN func.salario AS media_salarial;
 MEDIAN func.salario AS mediana_salarial;
 MODE func.departamento AS departamento_mais_comum;
 STD func.idade AS desvio_idade;
+VAR func.salario AS variancia_salario; // Adicionando VAR da nova OpEstatistica
 MIN func.salario AS menor_salario;
 MAX func.salario AS maior_salario;
 RANGE func.idade AS amplitude_idades;
 QUARTILES func.salario AS quartis_salario;
 
--- Contagem de registros
+// 3. Contagem de registros (Sintaxe: COUNT Id AS Id)
 COUNT func AS total_funcionarios;
 COUNT vendas AS total_vendas;
 
--- Filtragem de dados para criar novos subconjuntos
-FILTER func WHERE idade > 30 AS funcionarios_seniores;
-FILTER func WHERE departamento == "TI" AS func_ti;
-FILTER vendas WHERE valor > 1000 AS vendas_grandes;
+// 4. Filtragem de dados para criar novos subconjuntos
+// Sintaxe CORRIGIDA: FILTER Id INTO Id WHERE Expressao
+FILTER func INTO funcionarios_seniores WHERE func.idade > 30;
+FILTER func INTO func_ti WHERE func.departamento == "TI";
+FILTER vendas INTO vendas_grandes WHERE vendas.valor > 1000.5; // Usando ValorDouble
 
--- Análise pode ser feita nos dados filtrados
+// 5. Análise nos dados filtrados
 MEAN funcionarios_seniores.salario AS media_seniores;
 COUNT funcionarios_seniores AS total_seniores;
 
--- Visualização e salvamento
-SHOW func LIMIT 10;
-SHOW STATS func.salario;
-SHOW STATS func.idade;
+// 6. Visualização e salvamento
+// SHOW Expressao (sem LIMIT, conforme a nova BNF)
+SHOW func;
+
+// SHOW estatísticas diretas (substitui SHOW STATS)
+// Sintaxe: SHOW OpEstatistica ReferenciaColuna
+SHOW MEAN func.salario;
+SHOW MIN func.idade;
+
+// SAVE Expressao AS Expressao
 SAVE funcionarios_seniores AS "seniores.csv";
 
--- Além disso, o usuário pode declarar um procedimento e depois chamar esse procedimento para as entradas que ele quiser
-{
-    // DECLARANDO O PROCEDIMENTO
-    PROC analisarFuncionarios (STRING arquivo_csv, STRING nome_dataframe) {
-        LOAD arquivo_csv AS temp_df;
-        MEAN temp_df.salario AS media_salarial;
-        MEDIAN temp_df.salario AS mediana_salarial;
-        STD temp_df.idade AS desvio_idade;
-        FILTER temp_df INTO seniores WHERE idade > 30;
-        MEAN seniores.salario AS media_seniores;
-        SHOW media_salarial;
-        SHOW media_seniores
-    };
 
-    // CHAMANDO NO MESMO BLOCO (2 vezes)
-    CALL analisarFuncionarios("Testes/csvs/funcionarios_completo.csv", "func");
-    CALL analisarFuncionarios("Testes/csvs/funcionarios_completo.csv", "func2")
+// --- Bloco de Procedimentos ---
+
+proc analisarFuncionarios (string arquivo_csv) {
+    // LOAD Expressao AS Id
+    LOAD arquivo_csv AS temp_df;
+    
+    MEAN temp_df.salario AS media_salarial;
+    MEDIAN temp_df.salario AS mediana_salarial;
+    STD temp_df.idade AS desvio_idade;
+    
+    // Filtro dentro do PROC (Sintaxe FILTER ... INTO ... WHERE)
+    FILTER temp_df INTO seniores WHERE temp_df.idade > 30;
+    MEAN seniores.salario AS media_seniores;
+    
+    // Mostrar resultados de variáveis atribuídas (SHOW Expressao)
+    SHOW media_salarial;
+    SHOW media_seniores;
+    
+    // Exemplo de IO padrão
+    write("Analise de funcionarios concluida.");
+};
+
+// Chamando o procedimento
+CALL analisarFuncionarios("Testes/csvs/funcionarios_completo.csv");
+CALL analisarFuncionarios("Testes/csvs/vendas_completo.csv");
 }
 ```
 ## BNF atualizada:
