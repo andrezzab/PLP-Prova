@@ -1,24 +1,44 @@
+// --- Comandos de Dados (DSL) ---
+
+// 1. Carregar dados
+// Sintaxe: LOAD Expressao AS Id (Expressao pode ser um StringLiteral)
 LOAD "Testes/csvs/funcionarios_completo.csv" AS func;
-MEAN func.idade AS media_idade;
-MEAN func.salario AS media_salario;
-MEAN func.anos_experiencia AS media_experiencia;
-MEDIAN func.idade AS mediana_idade;
-MEDIAN func.salario AS mediana_salario;
-MODE func.departamento AS departamento_comum;
-STD func.salario AS desvio_salario;
-VARIANCE func.salario AS variancia_salario;
-MIN func.idade AS idade_minima;
-MAX func.idade AS idade_maxima;
-MIN func.salario AS salario_minimo;
-MAX func.salario AS salario_maximo;
-RANGE func.idade AS amplitude_idade;
-RANGE func.salario AS amplitude_salario;
+LOAD "Testes/csvs/vendas.csv" AS vendas;
+
+// 2. Análise estatística com atribuição (todos devem ter "AS Id")
+// Sintaxe: OpEstatistica ReferenciaColuna AS Id
+MEAN func.salario AS media_salarial;
+MEDIAN func.salario AS mediana_salarial;
+MODE func.anos_experiencia AS experiencia_mais_comum;
+STD func.idade AS desvio_idade;
+VARIANCE func.salario AS variancia_salario; 
+MIN func.salario AS menor_salario;
+MAX func.salario AS maior_salario;
+RANGE func.idade AS amplitude_idades;
 QUARTILES func.salario AS quartis_salario;
-QUARTILES func.anos_experiencia AS quartis_experiencia;
-COUNT func;
+
+// 3. Contagem de registros (Sintaxe: COUNT Id AS Id)
+COUNT func AS total_funcionarios;
+COUNT vendas AS total_vendas;
+
+// 4. Filtragem de dados para criar novos subconjuntos
+// Sintaxe CORRIGIDA: FILTER Id INTO Id WHERE Expressao
+FILTER func INTO funcionarios_seniores WHERE idade > 30;
 FILTER func INTO func_ti WHERE departamento == "TI";
-COUNT func_ti;
-MEAN func_ti.salario AS media_salario_ti;
-SHOW func LIMIT 10;
-SHOW STATS func.salario;
-SAVE func_ti AS "Testes/csvs/funcionarios_ti.csv"
+FILTER vendas INTO vendas_grandes WHERE valor > 1000.5; // Usando ValorDouble
+
+// 5. Análise nos dados filtrados
+MEAN funcionarios_seniores.salario AS media_seniores;
+COUNT funcionarios_seniores AS total_seniores;
+
+// 6. Visualização e salvamento
+// SHOW Expressao (sem LIMIT, conforme a nova BNF)
+SHOW func;
+
+// SHOW estatísticas diretas (substitui SHOW STATS)
+// Sintaxe: SHOW OpEstatistica ReferenciaColuna
+SHOW MEAN func.salario;
+SHOW MIN func.idade;
+
+// SAVE Expressao AS Expressao
+SAVE funcionarios_seniores AS "Testes/csvs/resultados/seniores.csv";

@@ -1,0 +1,13 @@
+idade,anos_experiencia,bonus,salario,departamento,nome,id
+35,8,1200,5500,TI,Daniel,4
+40,12,1500,6500,TI,Felipe,6
+32,6,900,5000,Marketing,Henrique,8
+45,15,2000,7000,TI,João,10
+33,7,1000,5200,RH,Lucas,12
+38,10,1300,6000,Marketing,Nicolas,14
+31,6,850,4800,RH,Olivia,15
+42,13,1800,6800,TI,Paulo,16
+36,9,1400,5800,TI,Rafaela,18
+34,8,1100,5400,Marketing,Thiago,20
+39,11,1600,6200,RH,Victor,22
+41,14,1700,6600,TI,Zilda,25

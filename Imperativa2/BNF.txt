@@ -1,0 +1,99 @@
+Programa ::= Comando
+
+Comando ::= Atribuicao
+          | ComandoDeclaracao
+          | While
+          | IfThenElse
+          | IO
+          | Comando ";" Comando
+          | Skip
+          | ChamadaProcedimento
+          | ComandoEstatistico    // ---> ADICIONADO
+
+Skip ::=
+
+Atribuicao ::= Id ":=" Expressao
+
+Expressao ::= Valor
+            | ExpUnaria 
+            | ExpBinaria 
+            | Id
+
+Valor ::= ValorConcreto
+
+ValorConcreto ::= ValorInteiro
+                | ValorBooleano
+                | ValorString
+                | ValorDouble           // ---> ADICIONADO
+
+ExpUnaria ::= "-" Expressao
+            | "not" Expressao
+            | "length" Expressao
+
+ExpBinaria ::= Expressao "+" Expressao
+             | Expressao "-" Expressao
+             | Expressao "and" Expressao
+             | Expressao "or" Expressao
+             | Expressao "==" Expressao
+             | Expressao "++" Expressao
+
+ComandoDeclaracao ::= "{" Declaracao ";" Comando "}"
+
+Declaracao ::= DeclaracaoVariavel
+             | DeclaracaoProcedimento
+             | DeclaracaoComposta
+
+DeclaracaoVariavel ::= "var" Id "=" Expressao
+
+DeclaracaoComposta ::= Declaracao "," Declaracao
+
+DeclaracaoProcedimento ::= "proc" Id "(" [ ListaDeclaracaoParametro ] ")" "{" Comando "}"
+
+ListaDeclaracaoParametro ::= Tipo Id
+                           | Tipo Id "," ListaDeclaracaoParametro
+
+Tipo ::= "string" | "int" | "boolean" | "double"
+
+While ::= "while" Expressao "do" Comando
+
+IfThenElse ::= "if" Expressao "then" Comando "else" Comando
+
+IO ::= "write" "(" Expressao ")"
+     | "read" "(" Id ")"
+
+ChamadaProcedimento ::= "call" Id "(" [ ListaExpressao ] ")"
+
+ListaExpressao ::= Expressao | Expressao, ListaExpressao
+
+// --- SEÇÃO DA DSL DE DADOS ---
+
+ComandoEstatistico ::= ComandoLoad        
+| ComandoFiltro        
+| ComandoCalculo
+| ComandoShow
+| ComandoSave
+
+ComandoLoad ::= "LOAD" StringLiteral "AS" Id
+
+ComandoFiltro ::= "FILTER" Id INTO Id "WHERE" Expressao
+
+ComandoCalculo ::= AnaliseColuna | ContagemTabela
+
+Comando Show ::= "SHOW" Expressao    | "SHOW" OpEstatistica ReferenciaColuna
+
+ComandoSave ::= "SAVE" Expressao "AS" StringLiteral
+
+AnaliseColuna ::= OpEstatistica ReferenciaColuna "AS" Id
+
+ContagemTabela ::= "COUNT" Expressao "AS" Id
+
+ReferenciaColuna ::= Expressao "." Id
+
+OpEstatistica ::= "MEAN" | "MEDIAN" | "MODE" | "STD" | “VARIANCE” | "MIN" | "MAX" | "RANGE" | "QUARTILES"
+
+// --- Definições Auxiliares ---
+
+StringLiteral ::= "\"" [^\"]* "\"" 
+                | "'" [^']* "'"
+
+Id ::= [a-zA-Z_][a-zA-Z0-9_]*
