@@ -188,11 +188,11 @@ ComandoSave ::= "SAVE" Expressao "AS" Expressao
 
 AnaliseColuna ::= OpEstatistica ReferenciaColuna "AS" Id
 
-ContagemTabela ::= "COUNT" Id "AS" Id
+ContagemTabela ::= "COUNT" Expressao "AS" Id
 
 ReferenciaColuna ::= Expressao "." Id
 
-OpEstatistica ::= "MEAN" | "MEDIAN" | "MODE" | "STD" | “VAR” | "MIN" | "MAX" | "RANGE" | "QUARTILES“
+OpEstatistica ::= "MEAN" | "MEDIAN" | "MODE" | "STD" | “VARIANCE” | "MIN" | "MAX" | "RANGE" | "QUARTILES“
 
 // --- Definições Auxiliares ---
 
