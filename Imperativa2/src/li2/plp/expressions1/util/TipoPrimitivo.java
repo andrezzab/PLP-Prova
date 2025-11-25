@@ -97,4 +97,9 @@ public enum TipoPrimitivo implements Tipo {
 		return this.nome;
 	}
 
+	@Override
+    public boolean eDataFrame() {
+        return false; // Inteiros, Strings e Booleanos NÃO são DataFrames
+    }
+
 }

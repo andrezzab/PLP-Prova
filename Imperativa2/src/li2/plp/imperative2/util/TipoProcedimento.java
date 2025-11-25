@@ -9,56 +9,63 @@ import li2.plp.expressions1.util.Tipo;
 
 public class TipoProcedimento implements Tipo {
 
-	private List<Tipo> tiposParametrosFormais = new ArrayList<Tipo>();
+    private List<Tipo> tiposParametrosFormais = new ArrayList<Tipo>();
 
-	public TipoProcedimento(List<Tipo> tiposParametrosFormais2) {
-		this.tiposParametrosFormais.addAll(tiposParametrosFormais2);
-	}
+    public TipoProcedimento(List<Tipo> tiposParametrosFormais2) {
+        this.tiposParametrosFormais.addAll(tiposParametrosFormais2);
+    }
 
-	public boolean eBooleano() {
-		return false;
-	}
+    public boolean eBooleano() {
+        return false;
+    }
 
-	public boolean eIgual(Tipo tipo) {
-		if (tipo instanceof TipoProcedimento) {
-			TipoProcedimento tipoProc = (TipoProcedimento) tipo;
-			return tipoProc.tiposParametrosFormais
-					.equals(this.tiposParametrosFormais);
-		}
+    public boolean eIgual(Tipo tipo) {
+        if (tipo instanceof TipoProcedimento) {
+            TipoProcedimento tipoProc = (TipoProcedimento) tipo;
+            return tipoProc.tiposParametrosFormais
+                    .equals(this.tiposParametrosFormais);
+        }
 
-		return tipo.eIgual(this);
-	}
+        return tipo.eIgual(this);
+    }
 
-	public boolean eInteiro() {
-		return false;
-	}
+    public boolean eInteiro() {
+        return false;
+    }
 
-	public boolean eString() {
-		return false;
-	}
+    public boolean eString() {
+        return false;
+    }
 
-	public boolean eDouble(){
-		return false;
-	}
+    public boolean eDouble(){
+        return false;
+    }
 
-	public boolean eValido() {
-		boolean retorno = true;
-		for (Tipo tipo : tiposParametrosFormais) {
-			retorno &= tipo.eValido();
-		}
+    // --- NOVO MÉTODO ADICIONADO ---
+    // Obrigatório pois a interface Tipo foi alterada
+    public boolean eDataFrame() {
+        return false;
+    }
+    // ------------------------------
 
-		return retorno;
-	}
+    public boolean eValido() {
+        boolean retorno = true;
+        for (Tipo tipo : tiposParametrosFormais) {
+            retorno &= tipo.eValido();
+        }
 
-	public String getNome() {
-		return listToString(this.tiposParametrosFormais, "{", "}", ",");
-	}
+        return retorno;
+    }
 
-	public Tipo intersecao(Tipo outroTipo) {
-		if (outroTipo.eIgual(this))
-			return this;
-		else
-			return null;
-	}
+    public String getNome() {
+        return listToString(this.tiposParametrosFormais, "{", "}", ",");
+    }
+
+    public Tipo intersecao(Tipo outroTipo) {
+        if (outroTipo.eIgual(this))
+            return this;
+        else
+            return null;
+    }
 
 }

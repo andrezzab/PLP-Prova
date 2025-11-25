@@ -1,6 +1,7 @@
 package li2.plp.expressions2.expression;
 
 import li2.plp.expressions1.util.Tipo;
+import li2.plp.expressions1.util.TipoDataFrame;
 import li2.plp.expressions2.memory.AmbienteCompilacao;
 import li2.plp.expressions2.memory.AmbienteExecucao;
 
@@ -73,9 +74,8 @@ public class ValorDataFrame implements Valor {
 
     @Override
     public Tipo getTipo(AmbienteCompilacao amb) {
-        // Você precisará criar uma classe TipoDataFrame que implementa Tipo
-        // return new TipoDataFrame(this.schema); 
-        return null; // TODO: Implementar TipoDataFrame
+        // Agora retornamos o tipo correto contendo o schema!
+        return new TipoDataFrame(this.schema); 
     }
 
     @Override

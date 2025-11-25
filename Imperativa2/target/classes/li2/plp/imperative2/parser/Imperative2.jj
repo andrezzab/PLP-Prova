@@ -65,10 +65,12 @@ public class Imp2Parser {
     public static void main(String args[]) {
         Imp2Parser parser;
         ListaValor entrada = new ListaValor();
+        
+        // ... (Lógica de leitura dos args e parser permanece igual) ...
         if (args.length == 0) {
             System.out.println("Imperativa 2 PLP Parser Version 0.0.1:  Reading from standard input . . .");
             parser = new Imp2Parser(System.in);
-        } else{
+        } else {
             System.out.println("Imperativa 2 PLP Parser Version 0.0.1:  Reading from file " + args[0] + " . . .");
             try {
                 parser = new Imp2Parser(new java.io.FileInputStream(args[0]));
@@ -77,45 +79,44 @@ public class Imp2Parser {
                 return;
             }
             
+            // Lógica de tratar parâmetros de entrada (args[1]...)
             List valores = new LinkedList();
-            for(int i=1;i<args.length;i++)
-            {
+            for(int i=1; i<args.length; i++) {
                 String parametro = args[i];
-                
                 try { 
                     Integer inteiro = Integer.valueOf(parametro);
                     valores.add(new ValorInteiro(inteiro.intValue()));
                     continue;
-                } catch(NumberFormatException e) {
-                    
-                }
+                } catch(NumberFormatException e) { }
                 
-                if(parametro.equalsIgnoreCase("true") 
-                    || parametro.equalsIgnoreCase("false")) {
+                if(parametro.equalsIgnoreCase("true") || parametro.equalsIgnoreCase("false")) {
                     Boolean booleano = Boolean.valueOf(parametro);
                     valores.add(new ValorBooleano(booleano.booleanValue()));
                 } else {
                     valores.add(new ValorString(parametro));
                 }
             }
-             entrada = criaListaValor(valores);
+            entrada = criaListaValor(valores);
         } 
         
         try {
             Programa programa = parser.Input();
             System.out.println("Imperativa 2 PLP Parser Version 0.0.1:  Imperativa2 program parsed successfully.");
             
-            if(programa.checaTipo(new ContextoCompilacaoImperativa(entrada))) {
+            // --- CORREÇÃO DO AMBIENTE DE COMPILAÇÃO ---
+            // 1. Criar o ambiente de compilação separadamente
+            AmbienteCompilacaoImperativa ambCompilacao = new ContextoCompilacaoImperativa(entrada);
+            
+            // 2. INICIALIZAR O ESCOPO GLOBAL PARA COMPILAÇÃO (Isso corrige o erro no Load/ChecaTipo)
+            ambCompilacao.incrementa(); 
+            
+            if(programa.checaTipo(ambCompilacao)) {
                 
-                // 1. Crie o ambiente de execução PRIMEIRO.
+                // --- AMBIENTE DE EXECUÇÃO ---
                 AmbienteExecucaoImperativa2 ambiente = new ContextoExecucaoImperativa2(entrada);
+                ambiente.incrementa(); // Já estava correto aqui, mas o programa falhava antes de chegar aqui
                 
-                // 2. INICIALIZE O ESCOPO GLOBAL. (O passo que faltava!)
-                ambiente.incrementa();
-                
-                // 3. Execute o programa com o ambiente já preparado.
                 ListaValor saida = programa.executar(ambiente);
-                
                 System.out.println(saida);
             }
             else {
@@ -643,49 +644,34 @@ Comando PShow():
 {
     Comando retorno;
     Token idVar;
-    Expressao limiteExp = null;
     VarColumn vc;
 }
 {
     <SHOW>
     (
-        // Caminho 1: SHOW MEAN dataframe.coluna
-        LOOKAHEAD(<MEAN>)
-        <MEAN> vc=PVarColumn()
-        { retorno = new Show(vc.var, vc.col, "MEAN"); } // Novo Construtor
+        // Caminho 1: Estatísticas (MEAN, MEDIAN, ETC)
+        LOOKAHEAD(<MEAN>)     <MEAN>     vc=PVarColumn() { retorno = new Show(vc.var, vc.col, "MEAN"); }
     |
-        // Caminho 2: SHOW MEDIAN dataframe.coluna
-        LOOKAHEAD(<MEDIAN>)
-        <MEDIAN> vc=PVarColumn()
-        { retorno = new Show(vc.var, vc.col, "MEDIAN"); } // Novo Construtor
+        LOOKAHEAD(<MEDIAN>)   <MEDIAN>   vc=PVarColumn() { retorno = new Show(vc.var, vc.col, "MEDIAN"); }
     |
-        // Adicionando todos os outros...
-        LOOKAHEAD(<MODE>) <MODE> vc=PVarColumn()
-        { retorno = new Show(vc.var, vc.col, "MODE"); }
+        LOOKAHEAD(<MODE>)     <MODE>     vc=PVarColumn() { retorno = new Show(vc.var, vc.col, "MODE"); }
     |
-        LOOKAHEAD(<STD>) <STD> vc=PVarColumn()
-        { retorno = new Show(vc.var, vc.col, "STD"); }
+        LOOKAHEAD(<STD>)      <STD>      vc=PVarColumn() { retorno = new Show(vc.var, vc.col, "STD"); }
     |
-        LOOKAHEAD(<VARIANCE>) <VARIANCE> vc=PVarColumn()
-        { retorno = new Show(vc.var, vc.col, "VARIANCE"); }
+        LOOKAHEAD(<VARIANCE>) <VARIANCE> vc=PVarColumn() { retorno = new Show(vc.var, vc.col, "VARIANCE"); }
     |
-        LOOKAHEAD(<MIN>) <MIN> vc=PVarColumn()
-        { retorno = new Show(vc.var, vc.col, "MIN"); }
+        LOOKAHEAD(<MIN>)      <MIN>      vc=PVarColumn() { retorno = new Show(vc.var, vc.col, "MIN"); }
     |
-        LOOKAHEAD(<MAX>) <MAX> vc=PVarColumn()
-        { retorno = new Show(vc.var, vc.col, "MAX"); }
+        LOOKAHEAD(<MAX>)      <MAX>      vc=PVarColumn() { retorno = new Show(vc.var, vc.col, "MAX"); }
     |
-        LOOKAHEAD(<RANGE>) <RANGE> vc=PVarColumn()
-        { retorno = new Show(vc.var, vc.col, "RANGE"); }
+        LOOKAHEAD(<RANGE>)    <RANGE>    vc=PVarColumn() { retorno = new Show(vc.var, vc.col, "RANGE"); }
     |
-        LOOKAHEAD(<QUARTILES>) <QUARTILES> vc=PVarColumn()
-        { retorno = new Show(vc.var, vc.col, "QUARTILES"); }
+        LOOKAHEAD(<QUARTILES>) <QUARTILES> vc=PVarColumn() { retorno = new Show(vc.var, vc.col, "QUARTILES"); }
     |
-        // Caminho 3: SHOW dataframe [LIMIT ...] OU SHOW variavel
-        // Este TEM que ser o último (fallback)
+        // Caminho 3: SHOW dataframe OU SHOW variavel
+        // (LIMIT removido conforme solicitado)
         idVar=<IDENTIFIER>
-        [ <LIMIT> limiteExp = PExpPrimaria() ]
-        { retorno = new Show(new Id(idVar.toString()), limiteExp); } // Construtor antigo
+        { retorno = new Show(new Id(idVar.toString())); }
     )
     { return retorno; }
 }

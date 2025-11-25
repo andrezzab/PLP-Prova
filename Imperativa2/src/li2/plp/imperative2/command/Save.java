@@ -1,5 +1,6 @@
 package li2.plp.imperative2.command;
 
+import li2.plp.expressions1.util.Tipo;
 import li2.plp.expressions2.expression.Expressao;
 import li2.plp.expressions2.expression.Id;
 import li2.plp.expressions2.expression.Valor;
@@ -13,61 +14,46 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Map;
 
-/**
- * Implementa o comando SAVE...AS...
- * Este comando é o oposto do LOAD. Ele pega um ValorDataFrame
- * da memória e o escreve em um arquivo.
- */
 public class Save implements Comando {
 
     private Id idDataFrame;
     private Expressao pathExpressao;
 
-    /**
-     * Construtor que o PARSER CORRIGIDO vai chamar.
-     * @param id O Id do DataFrame em memória (ex: "seniores")
-     * @param path A Expressao (ValorString) do arquivo de destino (ex: "saida.csv")
-     */
     public Save(Id id, Expressao path) {
         this.idDataFrame = id;
         this.pathExpressao = path;
     }
 
     @Override
-    public AmbienteExecucaoImperativa executar(AmbienteExecucaoImperativa amb) throws RuntimeException {
-
-        // 2. Avalia a expressão do caminho para obter um ValorString
-        Valor valorPath = pathExpressao.avaliar(amb);
-        if (!(valorPath instanceof ValorString)) {
-            throw new RuntimeException("Erro: O caminho do SAVE deve ser uma string.");
+    public AmbienteExecucaoImperativa executar(AmbienteExecucaoImperativa amb) {
+        // 1. Avalia o caminho
+        Valor valPath = pathExpressao.avaliar(amb);
+        if (!(valPath instanceof ValorString)) {
+             throw new RuntimeException("Erro: O caminho para salvar o arquivo deve ser uma String.");
         }
-        String path = ((ValorString) valorPath).valor();
+        String path = ((ValorString) valPath).valor();
 
-        // 3. Pega o DataFrame da memória
-        Valor valorDf = amb.get(idDataFrame);
-        if (!(valorDf instanceof ValorDataFrame)) {
+        // 2. Recupera o DataFrame
+        Valor valDf = amb.get(idDataFrame);
+        if (!(valDf instanceof ValorDataFrame)) {
             throw new RuntimeException("Erro: Variável '" + idDataFrame.getIdName() + "' não é um DataFrame.");
         }
-        ValorDataFrame df = (ValorDataFrame) valorDf;
+        ValorDataFrame df = (ValorDataFrame) valDf;
 
-        // 4. Escreve o DataFrame no arquivo
+        // 3. Escreve no disco
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(path))) {
-            // Escreve o cabeçalho
+            // Cabeçalho
             String[] colunas = df.getSchema().keySet().toArray(new String[0]);
             writer.write(String.join(",", colunas));
             writer.newLine();
 
-            // Escreve as linhas
+            // Linhas
             for (Map<String, Valor> linha : df.getRows()) {
                 String[] celulas = new String[colunas.length];
                 for (int i = 0; i < colunas.length; i++) {
-                    // Pega o valor e o converte para string (removendo aspas, se for ValorString)
-                    Valor val = linha.get(colunas[i]);
-                    if (val instanceof ValorString) {
-                        celulas[i] = ((ValorString) val).valor();
-                    } else {
-                        celulas[i] = val.toString();
-                    }
+                    Valor v = linha.get(colunas[i]);
+                    // Se for string, pega o valor cru. Se for outro, usa toString.
+                    celulas[i] = (v instanceof ValorString) ? ((ValorString)v).valor() : v.toString();
                 }
                 writer.write(String.join(",", celulas));
                 writer.newLine();
@@ -77,14 +63,28 @@ public class Save implements Comando {
         }
 
         System.out.println(">> DataFrame '" + idDataFrame.getIdName() + "' salvo em '" + path + "'.");
-
-        // 5. Retorna o amb (não foi modificado, mas a interface exige)
         return amb;
     }
 
     @Override
-    public boolean checaTipo(AmbienteCompilacaoImperativa amb) throws RuntimeException {
-        // TODO: Implementar checagem de tipo
+    public boolean checaTipo(AmbienteCompilacaoImperativa amb) {
+        // 1. Verifica se a variável do DataFrame existe e é do tipo correto
+        Tipo tipoDf = amb.get(idDataFrame);
+        if (tipoDf == null || !tipoDf.eDataFrame()) {
+            System.out.println("Erro de Compilação: Variável '" + idDataFrame.getIdName() + "' não é um DataFrame válido para salvar.");
+            return false;
+        }
+
+        // 2. Verifica se a expressão do caminho é uma String válida
+        if (!pathExpressao.checaTipo(amb)) {
+            return false;
+        }
+        Tipo tipoPath = pathExpressao.getTipo(amb);
+        if (!tipoPath.eString()) {
+             System.out.println("Erro de Compilação: O caminho do arquivo deve ser uma String.");
+             return false;
+        }
+
         return true;
     }
 }

@@ -69,6 +69,12 @@ public interface Tipo {
 	public abstract boolean eValido();
 
 	/**
+     * Indica se este tipo é um DataFrame (tabela).
+     * @return true se for DataFrame, false caso contrário.
+     */
+    public abstract boolean eDataFrame();
+
+	/**
 	 * Este m�todo retorna o tipo mais abrangente que engloba este tipo e o tipo
 	 * dado. Por exemplo, se este tipo pode ser String ou inteiro e o tipo dado
 	 * pode ser inteiro ou booleano, entao este metodo retorna um tipo que so

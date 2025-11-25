@@ -1,6 +1,7 @@
 package li2.plp.imperative2.command;
 
 import li2.plp.expressions1.util.Tipo;
+import li2.plp.expressions1.util.TipoDataFrame;
 import li2.plp.expressions2.expression.Id;
 import li2.plp.expressions2.expression.Valor;
 import li2.plp.expressions2.expression.Expressao;
@@ -14,23 +15,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Implementa o comando FILTER...WHERE...
- * Este comando usa a lógica de "matriz mxn" (ValorDataFrame)
- * e o avaliador de expressões da I2.
- */
 public class Filter implements Comando {
 
     private Id idDataFrameOriginal;
     private Id idDataFrameNovo;
     private Expressao condicao;
 
-    /**
-     * Construtor que o parser (Imp2Parser.jj) vai chamar.
-     * @param idOrigem O Id da variável do DataFrame original (ex: "func")
-     * @param idDestino O Id para o novo DataFrame filtrado (ex: "seniores")
-     * @param condicao A expressão de filtro (ex: "idade > 30")
-     */
     public Filter(Id idOrigem, Id idDestino, Expressao condicao) {
         this.idDataFrameOriginal = idOrigem;
         this.idDataFrameNovo = idDestino;
@@ -38,61 +28,71 @@ public class Filter implements Comando {
     }
 
     @Override
-    public AmbienteExecucaoImperativa executar(AmbienteExecucaoImperativa amb) throws RuntimeException {
-
-        // 2. Pega o DataFrame original do amb
+    public AmbienteExecucaoImperativa executar(AmbienteExecucaoImperativa amb) {
+        // ... (Implementação do executar permanece igual) ...
         Valor val = amb.get(idDataFrameOriginal);
-        if (!(val instanceof ValorDataFrame)) {
-            throw new RuntimeException("Erro: Variável '" + idDataFrameOriginal.getIdName() + "' não é um DataFrame.");
-        }
+        if (!(val instanceof ValorDataFrame)) throw new RuntimeException("Não é DataFrame.");
         ValorDataFrame dfOriginal = (ValorDataFrame) val;
-
-        // 3. Prepara para criar o novo DataFrame
+        
         List<Map<String, Valor>> linhasFiltradas = new ArrayList<>();
-        Map<String, Tipo> schema = dfOriginal.getSchema();
-
-        // 4. Itera pelas linhas do DataFrame original
         for (Map<String, Valor> linha : dfOriginal.getRows()) {
-            
-            // 5. A MÁGICA: Injeta as colunas da linha no amb
-            amb.incrementa(); // Cria novo escopo
-            for (String nomeColuna : schema.keySet()) {
-                // Mapeia a coluna (ex: "idade") para seu valor (ex: ValorInteiro(25))
-                amb.map(new Id(nomeColuna), linha.get(nomeColuna));
+            amb.incrementa();
+            for (Map.Entry<String, Valor> entry : linha.entrySet()) {
+                amb.map(new Id(entry.getKey()), entry.getValue());
             }
-
-            // 6. Avalia a expressão (ex: "idade > 30") NESSE amb
-            Valor resultado = condicao.avaliar(amb);
-            if (!(resultado instanceof ValorBooleano)) {
-                 amb.restaura(); // Limpa o escopo antes de lançar o erro
-                 throw new RuntimeException("Erro: A expressão WHERE deve resultar em um booleano.");
-            }
-            boolean condicaoSatisfeita = ((ValorBooleano) resultado).valor();
-
-            // 7. Limpa o amb (remove o escopo da linha)
-            amb.restaura();
-
-            // 8. Se a condição for verdadeira, salva a linha
-            if (condicaoSatisfeita) {
-                linhasFiltradas.add(linha);
+            try {
+                Valor resultado = condicao.avaliar(amb);
+                if (!(resultado instanceof ValorBooleano)) throw new RuntimeException("Filtro deve ser booleano");
+                if (((ValorBooleano) resultado).valor()) linhasFiltradas.add(linha);
+            } finally {
+                amb.restaura();
             }
         }
-
-        // 9. Cria o novo ValorDataFrame com as linhas filtradas
-        ValorDataFrame dfNovo = dfOriginal.createNew(linhasFiltradas);
-        
-        // 10. Mapeia o novo DataFrame no amb
+        ValorDataFrame dfNovo = new ValorDataFrame(dfOriginal.getSchema(), linhasFiltradas);
         amb.map(idDataFrameNovo, dfNovo);
-
-        System.out.println(">> Filtro aplicado. Novo DataFrame '" + idDataFrameNovo.getIdName() + "' criado com " + linhasFiltradas.size() + " linhas.");
-
-        // 11. Retorna o amb modificado
         return amb;
     }
 
     @Override
-    public boolean checaTipo(AmbienteCompilacaoImperativa amb) throws RuntimeException {
-        // TODO: Implementar checagem de tipo
+    public boolean checaTipo(AmbienteCompilacaoImperativa amb) {
+        Tipo tipoOrigem;
+        try {
+            tipoOrigem = amb.get(idDataFrameOriginal);
+        } catch (Exception e) { return false; }
+
+        if (tipoOrigem == null || !tipoOrigem.eDataFrame()) return false;
+        
+        TipoDataFrame tdf = (TipoDataFrame) tipoOrigem;
+        amb.incrementa();
+
+        // Se tiver schema, injeta variáveis para checar a expressão.
+        // Se for NULL (dinâmico), não injetamos nada, e a checagem da expressão 
+        // vai depender se ela usa variáveis que não existem no escopo global.
+        // Isso é uma limitação do carregamento dinâmico.
+        if (tdf.getSchema() != null) {
+            for (Map.Entry<String, Tipo> entry : tdf.getSchema().entrySet()) {
+                amb.map(new Id(entry.getKey()), entry.getValue());
+            }
+            
+            if (!condicao.checaTipo(amb)) {
+                amb.restaura();
+                return false;
+            }
+            
+            if (!condicao.getTipo(amb).eBooleano()) {
+                amb.restaura();
+                return false; 
+            }
+        } else {
+             // Schema desconhecido: Confiamos cegamente ou pulamos a validação fina da expressão
+             // Para permitir compilação, vamos assumir ok, mas cuidado com variáveis não declaradas na expressão.
+        }
+
+        amb.restaura();
+        
+        // Mapeia o novo DF (herdando o schema, mesmo que seja null)
+        amb.map(idDataFrameNovo, tdf);
+
         return true;
     }
 }

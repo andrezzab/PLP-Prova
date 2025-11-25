@@ -4,6 +4,8 @@ import java.util.List;
 import li2.plp.expressions2.expression.Id;
 import li2.plp.expressions2.expression.Valor;
 import li2.plp.expressions2.expression.ValorDouble;
+import li2.plp.expressions1.util.Tipo;
+import li2.plp.expressions1.util.TipoPrimitivo;
 import li2.plp.imperative2.util.CalculadoraEstatisticas;
 
 public class Range extends ComandoEstatisticoAbstrato {
@@ -23,5 +25,10 @@ public class Range extends ComandoEstatisticoAbstrato {
     @Override
     protected String getNomeEstatistica() {
         return "Amplitude";
+    }
+
+    @Override
+    protected Tipo getTipoRetorno() {
+        return TipoPrimitivo.DOUBLE;
     }
 }
