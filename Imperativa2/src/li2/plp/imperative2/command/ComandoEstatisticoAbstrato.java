@@ -4,7 +4,7 @@ package li2.plp.imperative2.command;
 import li2.plp.imperative1.command.Comando; 
 import li2.plp.imperative1.memory.AmbienteCompilacaoImperativa;
 import li2.plp.imperative1.memory.AmbienteExecucaoImperativa;
-
+import li2.plp.expressions1.util.Tipo;
 // Imports do expressions2 (para Valores e IDs)
 import li2.plp.expressions2.expression.Id;
 import li2.plp.expressions2.expression.Valor;
@@ -20,7 +20,6 @@ import java.util.Map;
  * ESTA É A VERSÃO CORRETA.
  * Ela implementa a interface 'Comando' da imperative1 (como seu projeto exige).
  * Ela usa a lógica eficiente do 'ValorDataFrame' (a "matriz").
- * Ela usa o 'AmbienteExecucaoImperativa2'.
  */
 public abstract class ComandoEstatisticoAbstrato implements Comando { // Implementa a interface de imperative1
 
@@ -53,7 +52,7 @@ public abstract class ComandoEstatisticoAbstrato implements Comando { // Impleme
         //    pode nos dar um 'Valor'.
         Valor valor = amb.get(idVariavelCsv);
         if (!(valor instanceof ValorDataFrame)) {
-            throw new RuntimeException("Erro: Variável '" + idVariavelCsv.getIdName() + "' não é um DataFrame.");
+            throw new RuntimeException("Erro de Tipo: A variável '" + idVariavelCsv.getIdName() + "' não é um DataFrame. Encontrado: " + valor.getClass().getSimpleName());
         }
         ValorDataFrame df = (ValorDataFrame) valor;
         String colName = nomeColuna.getIdName();
@@ -63,22 +62,36 @@ public abstract class ComandoEstatisticoAbstrato implements Comando { // Impleme
             throw new RuntimeException("Erro: Coluna '" + colName + "' não encontrada no DataFrame '" + idVariavelCsv.getIdName() + "'.");
         }
         
-        // TODO: Refinar a verificação de tipo (ex: Tipo.FLOAT)
-        // Tipo tipoColuna = df.getSchema().get(colName);
-        // if(tipoColuna != Tipo.INT && tipoColuna != Tipo.FLOAT) {
-        //     throw new RuntimeException("Erro: Estatística '" + getNomeEstatistica() + "' não pode ser aplicada na coluna '" + colName + "'.");
-        // }
+        // 3. Validação de TIPO (Usando sua interface Tipo)
+        Tipo tipoColuna = df.getSchema().get(colName);
+        
+        // Verifica se é numérico usando os métodos da sua interface
+        boolean isNumerico = tipoColuna.eInteiro() || tipoColuna.eDouble();
+        
+        if (!isNumerico) {
+            throw new RuntimeException("Erro de Tipo: A estatística '" + getNomeEstatistica() + 
+                                       "' só pode ser aplicada em colunas numéricas. " +
+                                       "A coluna '" + colName + "' é do tipo " + tipoColuna.getNome());
+        }
 
         // 4. Itera pelas linhas e constrói a List<Double>
+        // 4. Extração segura dos dados
         List<Double> numeros = new ArrayList<>();
+        int linhaAtual = 0;
+        
         for (Map<String, Valor> linha : df.getRows()) {
+            linhaAtual++;
             Valor valorLinha = linha.get(colName);
             
-            // Converte ValorInteiro ou ValorDouble para Double
+            // Tenta converter para double, seja inteiro ou real
             if (valorLinha instanceof ValorInteiro) {
                 numeros.add((double) ((ValorInteiro) valorLinha).valor());
             } else if (valorLinha instanceof ValorDouble) {
                 numeros.add(((ValorDouble) valorLinha).valor());
+            } else {
+                // Caso encontre lixo ou string numa coluna marcada como numérica
+                throw new RuntimeException("Erro de Consistência: Na linha " + linhaAtual + ", a coluna '" + colName + 
+                                           "' contém um valor não numérico: " + valorLinha);
             }
         }
 
