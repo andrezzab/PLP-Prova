@@ -75,107 +75,105 @@ public interface Imp2ParserConstants {
   /** RegularExpression Id. */
   int SHOW = 37;
   /** RegularExpression Id. */
-  int LIMIT = 38;
+  int SAVE = 38;
   /** RegularExpression Id. */
-  int SAVE = 39;
+  int COUNT = 39;
   /** RegularExpression Id. */
-  int COUNT = 40;
+  int FILTER = 40;
   /** RegularExpression Id. */
-  int FILTER = 41;
+  int INTO = 41;
   /** RegularExpression Id. */
-  int INTO = 42;
+  int WHERE = 42;
   /** RegularExpression Id. */
-  int WHERE = 43;
+  int INT = 43;
   /** RegularExpression Id. */
-  int INT = 44;
+  int BOOLEAN = 44;
   /** RegularExpression Id. */
-  int BOOLEAN = 45;
+  int STRING = 45;
   /** RegularExpression Id. */
-  int STRING = 46;
+  int INTEGER_LITERAL = 46;
   /** RegularExpression Id. */
-  int INTEGER_LITERAL = 47;
+  int DECIMAL_LITERAL = 47;
   /** RegularExpression Id. */
-  int DECIMAL_LITERAL = 48;
+  int HEX_LITERAL = 48;
   /** RegularExpression Id. */
-  int HEX_LITERAL = 49;
+  int OCTAL_LITERAL = 49;
   /** RegularExpression Id. */
-  int OCTAL_LITERAL = 50;
+  int STRING_LITERAL = 50;
   /** RegularExpression Id. */
-  int STRING_LITERAL = 51;
+  int FLOATING_POINT_LITERAL = 51;
   /** RegularExpression Id. */
-  int FLOATING_POINT_LITERAL = 52;
+  int EXPONENT = 52;
   /** RegularExpression Id. */
-  int EXPONENT = 53;
+  int IDENTIFIER = 53;
   /** RegularExpression Id. */
-  int IDENTIFIER = 54;
+  int LETTER = 54;
   /** RegularExpression Id. */
-  int LETTER = 55;
+  int DIGIT = 55;
   /** RegularExpression Id. */
-  int DIGIT = 56;
+  int LPAREN = 56;
   /** RegularExpression Id. */
-  int LPAREN = 57;
+  int RPAREN = 57;
   /** RegularExpression Id. */
-  int RPAREN = 58;
+  int LBRACE = 58;
   /** RegularExpression Id. */
-  int LBRACE = 59;
+  int RBRACE = 59;
   /** RegularExpression Id. */
-  int RBRACE = 60;
+  int LBRACKET = 60;
   /** RegularExpression Id. */
-  int LBRACKET = 61;
+  int RBRACKET = 61;
   /** RegularExpression Id. */
-  int RBRACKET = 62;
+  int SEMICOLON = 62;
   /** RegularExpression Id. */
-  int SEMICOLON = 63;
+  int COMMA = 63;
   /** RegularExpression Id. */
-  int COMMA = 64;
+  int DOT = 64;
   /** RegularExpression Id. */
-  int DOT = 65;
+  int ATTRIB = 65;
   /** RegularExpression Id. */
-  int ATTRIB = 66;
+  int ASSIGN = 66;
   /** RegularExpression Id. */
-  int ASSIGN = 67;
+  int GT = 67;
   /** RegularExpression Id. */
-  int GT = 68;
+  int LT = 68;
   /** RegularExpression Id. */
-  int LT = 69;
+  int BANG = 69;
   /** RegularExpression Id. */
-  int BANG = 70;
+  int TILDE = 70;
   /** RegularExpression Id. */
-  int TILDE = 71;
+  int HOOK = 71;
   /** RegularExpression Id. */
-  int HOOK = 72;
+  int COLON = 72;
   /** RegularExpression Id. */
-  int COLON = 73;
+  int EQ = 73;
   /** RegularExpression Id. */
-  int EQ = 74;
+  int LE = 74;
   /** RegularExpression Id. */
-  int LE = 75;
+  int GE = 75;
   /** RegularExpression Id. */
-  int GE = 76;
+  int NE = 76;
   /** RegularExpression Id. */
-  int NE = 77;
+  int SC_OR = 77;
   /** RegularExpression Id. */
-  int SC_OR = 78;
+  int SC_AND = 78;
   /** RegularExpression Id. */
-  int SC_AND = 79;
+  int CONCAT = 79;
   /** RegularExpression Id. */
-  int CONCAT = 80;
+  int PLUS = 80;
   /** RegularExpression Id. */
-  int PLUS = 81;
+  int MINUS = 81;
   /** RegularExpression Id. */
-  int MINUS = 82;
+  int STAR = 82;
   /** RegularExpression Id. */
-  int STAR = 83;
+  int SLASH = 83;
   /** RegularExpression Id. */
-  int SLASH = 84;
+  int BIT_AND = 84;
   /** RegularExpression Id. */
-  int BIT_AND = 85;
+  int BIT_OR = 85;
   /** RegularExpression Id. */
-  int BIT_OR = 86;
+  int XOR = 86;
   /** RegularExpression Id. */
-  int XOR = 87;
-  /** RegularExpression Id. */
-  int REM = 88;
+  int REM = 87;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -220,7 +218,6 @@ public interface Imp2ParserConstants {
     "\"RANGE\"",
     "\"QUARTILES\"",
     "\"SHOW\"",
-    "\"LIMIT\"",
     "\"SAVE\"",
     "\"COUNT\"",
     "\"FILTER\"",

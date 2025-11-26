@@ -1,6 +1,6 @@
 id,nome,idade,salario,departamento,anos_experiencia,bonus
-1,Ana,25,3500.50,TI,2,500
-2,Bruno,30,4500.80,TI,5,800
+1,Ana,25,3500,TI,2,500
+2,Bruno,30,sapato,TI,5,800
 3,Carla,28,4000,RH,4,600
 4,Daniel,35,5500,TI,8,1200
 5,Elena,22,3000,Marketing,1,300

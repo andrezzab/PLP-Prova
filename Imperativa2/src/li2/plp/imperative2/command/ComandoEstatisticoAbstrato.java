@@ -33,30 +33,70 @@ public abstract class ComandoEstatisticoAbstrato implements Comando {
 
     @Override
     public AmbienteExecucaoImperativa executar(AmbienteExecucaoImperativa amb) throws RuntimeException {
-        // ... (Implementação do executar igual à anterior) ...
         Valor valor = amb.get(idVariavelCsv);
-        if (!(valor instanceof ValorDataFrame)) throw new RuntimeException("Erro: Variável não é DataFrame");
         
-        ValorDataFrame df = (ValorDataFrame) valor;
+        // Duck Typing para evitar instanceof se possível, ou manter cast seguro
+        ValorDataFrame df;
+        try {
+            df = (ValorDataFrame) valor;
+        } catch (ClassCastException e) {
+            throw new RuntimeException("Erro: Variável '" + idVariavelCsv.getIdName() + "' não é um DataFrame.");
+        }
+        
         String colName = nomeColuna.getIdName();
-        if (!df.getSchema().containsKey(colName)) throw new RuntimeException("Coluna '" + colName + "' não existe.");
         
-        Tipo tipoColuna = df.getSchema().get(colName);
-        if (!tipoColuna.eInteiro() && !tipoColuna.eDouble()) throw new RuntimeException("Coluna não numérica.");
+        // 1. Validação de Coluna (Suporta Schema Dinâmico)
+        if (df.getSchema() != null) {
+            // Cenário A: Temos Schema (Load Estático)
+            if (!df.getSchema().containsKey(colName)) 
+                throw new RuntimeException("Erro: Coluna '" + colName + "' não existe no DataFrame.");
+            
+            Tipo tipoColuna = df.getSchema().get(colName);
+            if (!tipoColuna.eInteiro() && !tipoColuna.eDouble()) 
+                throw new RuntimeException("Erro: Coluna '" + colName + "' não é numérica (tipo encontrado: " + tipoColuna.getNome() + ").");
+        } 
+        else {
+            // Cenário B: Schema Null (Load Dinâmico)
+            if (df.getRows().isEmpty()) {
+                System.out.println("Aviso: DataFrame vazio. " + getNomeEstatistica() + " não calculado.");
+                return amb; // Retorna sem fazer nada ou salva valor padrão?
+            }
+            // Verifica na primeira linha de dados se a coluna existe
+            if (!df.getRows().get(0).containsKey(colName)) {
+                 throw new RuntimeException("Erro: Coluna '" + colName + "' não encontrada nos dados.");
+            }
+        }
 
+        // 2. Extração de Dados
         List<Double> numeros = new ArrayList<>();
         int linhaAtual = 0;
         for (Map<String, Valor> linha : df.getRows()) {
             linhaAtual++;
             Valor valorLinha = linha.get(colName);
-            if (valorLinha instanceof ValorInteiro) numeros.add((double) ((ValorInteiro) valorLinha).valor());
-            else if (valorLinha instanceof ValorDouble) numeros.add(((ValorDouble) valorLinha).valor());
-            else throw new RuntimeException("Valor inválido na linha " + linhaAtual);
+            
+            if (valorLinha instanceof ValorInteiro) {
+                numeros.add((double) ((ValorInteiro) valorLinha).valor());
+            } else if (valorLinha instanceof ValorDouble) {
+                numeros.add(((ValorDouble) valorLinha).valor());
+            } else {
+                // Se chegou aqui num Load Dinâmico, é porque a coluna tinha texto misturado
+                throw new RuntimeException("Erro de Tipo na linha " + linhaAtual + ": Esperado número, encontrado " + valorLinha);
+            }
         }
 
+        if (numeros.isEmpty()) {
+             System.out.println("Aviso: Coluna '" + colName + "' não possui dados numéricos.");
+             // Aqui você poderia optar por salvar NaN ou 0, dependendo da regra de negócio
+             return amb; 
+        }
+
+        // 3. Cálculo e Armazenamento
         Valor resultado = calcular(numeros);
         amb.map(idVariavelDestino, resultado);
-        System.out.println(">> " + this.getNomeEstatistica() + " (" + colName + "): " + resultado);
+        
+        // Opcional: Feedback visual
+        // System.out.println(">> " + this.getNomeEstatistica() + " (" + colName + "): " + resultado);
+        
         return amb;
     }
 

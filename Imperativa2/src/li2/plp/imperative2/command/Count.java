@@ -39,10 +39,12 @@ public class Count implements Comando {
     public AmbienteExecucaoImperativa executar(AmbienteExecucaoImperativa amb) throws RuntimeException {
         // 1. Pega o DataFrame original do amb
         Valor val = amb.get(idDataFrame);
-        if (!(val instanceof ValorDataFrame)) {
-            throw new RuntimeException("Erro: Variável '" + idDataFrame.getIdName() + "' não é um DataFrame.");
+        ValorDataFrame df;
+        try {
+            df = (ValorDataFrame) val;
+        } catch (ClassCastException e) {
+            throw new RuntimeException("Erro de Execução: '" + idDataFrame.getIdName() + "' não é um DataFrame válido.");
         }
-        ValorDataFrame df = (ValorDataFrame) val;
         
         // 2. Obtém a contagem
         int contagem = df.getRows().size();

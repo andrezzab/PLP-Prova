@@ -5,7 +5,6 @@ C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\expressions2\memory\StackHandler.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\expressions2\memory\AmbienteCompilacao.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative2\command\Mean.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\expressions2\expression\ExpSoma.java
-C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\expressions1\util\TipoDataFrame.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative2\command\Load.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\expressions2\expression\ExpNot.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative2\command\Min.java
@@ -22,6 +21,7 @@ C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative1\util\Lista.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative1\declaration\Declaracao.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\expressions2\expression\ValorConcreto.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative2\declaration\DeclaracaoParametro.java
+C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative2\util\TipoDataFrame.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\expressions2\expression\ExpNe.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\expressions2\memory\AmbienteExecucao.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative1\command\ComandoDeclaracao.java
@@ -72,7 +72,6 @@ C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative1\memory\AmbienteCompilacao
 C:\PLP\PLP-Projeto\Imperativa2\target\generated-sources\javacc\li2\plp\imperative2\parser\ParseException.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative2\util\CalculadoraEstatisticas.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative2\memory\ProcedimentoJaDeclaradoException.java
-C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\expressions2\expression\ValorFloat.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\expressions1\excecao\ErroTipoException.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\expressions2\expression\ExpConcat.java
 C:\PLP\PLP-Projeto\Imperativa2\src\li2\plp\imperative2\Programa.java
