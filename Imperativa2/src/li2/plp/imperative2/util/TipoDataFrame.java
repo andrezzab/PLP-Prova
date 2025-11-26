@@ -1,6 +1,8 @@
-package li2.plp.expressions1.util;
+package li2.plp.imperative2.util;
 
 import java.util.Map;
+
+import li2.plp.expressions1.util.Tipo;
 
 public class TipoDataFrame implements Tipo {
 

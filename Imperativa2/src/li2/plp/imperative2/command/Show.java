@@ -1,7 +1,6 @@
 package li2.plp.imperative2.command;
 
 import li2.plp.expressions1.util.Tipo;
-import li2.plp.expressions1.util.TipoDataFrame;
 import li2.plp.expressions2.expression.Id;
 import li2.plp.expressions2.expression.Valor;
 import li2.plp.expressions2.expression.ValorDouble;
@@ -12,6 +11,7 @@ import li2.plp.imperative1.command.Comando;
 import li2.plp.imperative1.memory.AmbienteCompilacaoImperativa;
 import li2.plp.imperative1.memory.AmbienteExecucaoImperativa;
 import li2.plp.imperative2.util.CalculadoraEstatisticas;
+import li2.plp.imperative2.util.TipoDataFrame;
 
 import java.util.ArrayList;
 import java.util.Collections;

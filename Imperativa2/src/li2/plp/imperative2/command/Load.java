@@ -1,7 +1,6 @@
 package li2.plp.imperative2.command;
 
 import li2.plp.expressions1.util.Tipo;
-import li2.plp.expressions1.util.TipoDataFrame;
 import li2.plp.expressions2.expression.Expressao;
 import li2.plp.expressions2.expression.Id;
 import li2.plp.expressions2.expression.Valor;
@@ -10,12 +9,11 @@ import li2.plp.imperative1.command.Comando;
 import li2.plp.imperative1.memory.AmbienteCompilacaoImperativa;
 import li2.plp.imperative1.memory.AmbienteExecucaoImperativa;
 import li2.plp.imperative2.util.ParserCSV;
+import li2.plp.imperative2.util.TipoDataFrame;
 import li2.plp.expressions2.expression.ValorDataFrame;
 
 import java.io.File;
-import java.util.List;
 import java.util.Map;
-import java.util.EmptyStackException;
 
 public class Load implements Comando {
 
@@ -29,20 +27,26 @@ public class Load implements Comando {
 
     @Override
     public AmbienteExecucaoImperativa executar(AmbienteExecucaoImperativa amb) {
-        // ... (Seu código executar permanece igual, sem alterações necessárias aqui) ...
         try {
+            // 1. Descobre o nome do arquivo e o interpretador busca o valor dela na memória (ex: "dados.csv").
             Valor val = this.pathExpressao.avaliar(amb);
-            if (!(val instanceof ValorString)) throw new RuntimeException("Caminho inválido");
-            String path = ((ValorString) val).valor();
+            if (!(val instanceof ValorString)) throw new RuntimeException("Caminho inválido"); 
+            String path = ((ValorString) val).valor();//Garante que o caminho resultante é um Texto.
 
+            // valida o formato do arquivo
             if (!path.toLowerCase().endsWith(".csv")) throw new RuntimeException("Arquivo deve ser .csv");
             File arquivo = new File(path);
             if (!arquivo.exists()) throw new RuntimeException("Arquivo não encontrado: " + path);
 
+            //cria o parsercsv que abre o arquivo, lê o cabeçalho, lê todas as linhas, infere se é número ou texto e guarda tudo na memória dela.
             ParserCSV parser = new ParserCSV(path); 
+
+            //Cria o ValorDataFrame (A Planilha na Memória). Pegamos o resultado do parser (Schema + Linhas) e colocamos dentro do objeto ValorDataFrame
             ValorDataFrame dataFrame = new ValorDataFrame(parser.getSchema(), parser.getRows());
             
+            // Salva na Variável
             if (this.idDataFrame != null) {
+                // é onde a mágica acontece. A variável func (o idDataFrame) passa a apontar para essa planilha carregada
                 amb.map(this.idDataFrame, dataFrame);
                 System.out.println(">> Dataset carregado em '" + this.idDataFrame.getIdName() + "' (" + parser.getRows().size() + " linhas)");
             }
@@ -66,7 +70,7 @@ public class Load implements Comando {
                 String path = ((ValorString) pathExpressao).valor();
                 try {
                     ParserCSV parser = new ParserCSV(path);
-                    schema = parser.getSchema();
+                    schema = parser.getSchema(); // Descobrimos as colunas
                 } catch (Exception e) {
                     System.out.println("Aviso de Compilação: " + e.toString());
                     // Mesmo com erro de leitura, vamos tentar registrar para não travar o parser
@@ -76,11 +80,12 @@ public class Load implements Comando {
             else {
                 // schema continua null
             }
-
             // REGISTRA NO AMBIENTE (Com Schema ou Null)
             // Isso impede o erro "VariavelNaoDeclarada" nos comandos seguintes
             try {
+                // Cria o "Crachá" do DataFrame
                 TipoDataFrame tipoDf = new TipoDataFrame(schema);
+                // Avisa ao compilador: "Existe uma variável 'func' que é um DataFrame"
                 amb.map(idDataFrame, tipoDf);
             } catch (Exception e) {
                 System.out.println("Erro ao registrar variável: " + e.toString());

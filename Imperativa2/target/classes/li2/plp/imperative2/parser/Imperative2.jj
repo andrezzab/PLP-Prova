@@ -196,9 +196,7 @@ TOKEN : /* TOKENS DE IMPERATIVA 2 (MAIÚSCULAS) */
 | < RANGE: "RANGE" >
 | < QUARTILES: "QUARTILES" >
 | < SHOW: "SHOW" >
-| < LIMIT: "LIMIT" >
 | < SAVE: "SAVE" >
-// | < ON : "ON" > // REMOVIDO
 | < COUNT: "COUNT" >
 | < FILTER: "FILTER" >
 | < INTO: "INTO" >

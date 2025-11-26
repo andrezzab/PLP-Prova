@@ -1,9 +1,9 @@
 package li2.plp.expressions2.expression;
 
 import li2.plp.expressions1.util.Tipo;
-import li2.plp.expressions1.util.TipoDataFrame;
 import li2.plp.expressions2.memory.AmbienteCompilacao;
 import li2.plp.expressions2.memory.AmbienteExecucao;
+import li2.plp.imperative2.util.TipoDataFrame;
 
 import java.util.List;
 import java.util.Map;
