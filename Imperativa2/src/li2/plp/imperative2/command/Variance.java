@@ -6,7 +6,6 @@ import li2.plp.expressions2.expression.Valor;
 import li2.plp.expressions2.expression.ValorDouble;
 import li2.plp.expressions1.util.Tipo;
 import li2.plp.expressions1.util.TipoPrimitivo;
-import li2.plp.imperative2.util.CalculadoraEstatisticas;
 
 public class Variance extends ComandoEstatisticoAbstrato {
 
@@ -16,7 +15,7 @@ public class Variance extends ComandoEstatisticoAbstrato {
 
     @Override
     protected Valor calcular(List<Double> numeros) {
-        double variancia = CalculadoraEstatisticas.calcularVariancia(numeros);
+        double variancia = calcularVariancia(numeros);
         return new ValorDouble(variancia);
     }
 
@@ -28,5 +27,15 @@ public class Variance extends ComandoEstatisticoAbstrato {
     @Override
     protected Tipo getTipoRetorno() {
         return TipoPrimitivo.DOUBLE;
+    }
+
+    public static double calcularVariancia(List<Double> numeros) {
+        if (numeros.size() < 2) return 0.0;
+        double media = Mean.calcularMedia(numeros);
+        double somaDosQuadrados = 0.0;
+        for (double num : numeros) {
+            somaDosQuadrados += Math.pow(num - media, 2);
+        }
+        return somaDosQuadrados / (numeros.size() - 1);
     }
 }

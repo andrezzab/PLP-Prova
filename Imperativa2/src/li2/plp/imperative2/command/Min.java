@@ -1,12 +1,12 @@
 package li2.plp.imperative2.command;
 
+import java.util.Collections;
 import java.util.List;
 import li2.plp.expressions2.expression.Id;
 import li2.plp.expressions2.expression.Valor;
 import li2.plp.expressions2.expression.ValorDouble;
 import li2.plp.expressions1.util.Tipo;
 import li2.plp.expressions1.util.TipoPrimitivo;
-import li2.plp.imperative2.util.CalculadoraEstatisticas;
 
 public class Min extends ComandoEstatisticoAbstrato {
 
@@ -16,7 +16,7 @@ public class Min extends ComandoEstatisticoAbstrato {
 
     @Override
     protected Valor calcular(List<Double> numeros) {
-        double minimo = CalculadoraEstatisticas.calcularMinimo(numeros);
+        double minimo = calcularMinimo(numeros);
         return new ValorDouble(minimo);
     }
 
@@ -28,5 +28,11 @@ public class Min extends ComandoEstatisticoAbstrato {
     @Override
     protected Tipo getTipoRetorno() {
         return TipoPrimitivo.DOUBLE;
+    }
+
+    // Medidas de Dispersão
+    public static double calcularMinimo(List<Double> numeros) {
+        if (numeros.isEmpty()) return Double.NaN;
+        return Collections.min(numeros);
     }
 }

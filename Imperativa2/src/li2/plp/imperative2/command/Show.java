@@ -10,7 +10,6 @@ import li2.plp.expressions2.expression.ValorDataFrame;
 import li2.plp.imperative1.command.Comando;
 import li2.plp.imperative1.memory.AmbienteCompilacaoImperativa;
 import li2.plp.imperative1.memory.AmbienteExecucaoImperativa;
-import li2.plp.imperative2.util.CalculadoraEstatisticas;
 import li2.plp.imperative2.util.TipoDataFrame;
 
 import java.util.ArrayList;
@@ -128,16 +127,16 @@ public class Show implements Comando {
 
         String output = "";
         switch (tipoEstatistica) {
-            case "MEAN": output = "" + CalculadoraEstatisticas.calcularMedia(numeros); break;
-            case "MEDIAN": output = "" + CalculadoraEstatisticas.calcularMediana(numeros); break;
-            case "STD": output = "" + CalculadoraEstatisticas.calcularDesvioPadrao(numeros); break;
-            case "VARIANCE": output = "" + CalculadoraEstatisticas.calcularVariancia(numeros); break;
-            case "MIN": output = "" + CalculadoraEstatisticas.calcularMinimo(numeros); break;
-            case "MAX": output = "" + CalculadoraEstatisticas.calcularMaximo(numeros); break;
-            case "RANGE": output = "" + (CalculadoraEstatisticas.calcularMaximo(numeros) - CalculadoraEstatisticas.calcularMinimo(numeros)); break;
-            case "MODE": output = CalculadoraEstatisticas.calcularModa(numeros).toString(); break;
+            case "MEAN": output = "" + Mean.calcularMedia(numeros); break;
+            case "MEDIAN": output = "" + Median.calcularMediana(numeros); break;
+            case "STD": output = "" + Std.calcularDesvioPadrao(numeros); break;
+            case "VARIANCE": output = "" + Variance.calcularVariancia(numeros); break;
+            case "MIN": output = "" + Min.calcularMinimo(numeros); break;
+            case "MAX": output = "" + Max.calcularMaximo(numeros); break;
+            case "RANGE": output = "" + (Max.calcularMaximo(numeros) - Min.calcularMinimo(numeros)); break;
+            case "MODE": output = Mode.calcularModa(numeros).toString(); break;
             case "QUARTILES": 
-                Map<String, Double> q = CalculadoraEstatisticas.calcularQuartis(numeros);
+                Map<String, Double> q = Quartiles.calcularQuartis(numeros);
                 output = String.format("Q1: %.2f, Q2: %.2f, Q3: %.2f", q.get("Q1"), q.get("Q2"), q.get("Q3")); break;
         }
         System.out.println(String.format(">> %s (%s): %s", tipoEstatistica, colName, output));

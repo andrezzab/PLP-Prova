@@ -6,7 +6,6 @@ import li2.plp.expressions2.expression.Valor;
 import li2.plp.expressions2.expression.ValorDouble;
 import li2.plp.expressions1.util.Tipo;
 import li2.plp.expressions1.util.TipoPrimitivo;
-import li2.plp.imperative2.util.CalculadoraEstatisticas;
 
 public class Std extends ComandoEstatisticoAbstrato {
 
@@ -16,7 +15,7 @@ public class Std extends ComandoEstatisticoAbstrato {
 
     @Override
     protected Valor calcular(List<Double> numeros) {
-        double desvioPadrao = CalculadoraEstatisticas.calcularDesvioPadrao(numeros);
+        double desvioPadrao = calcularDesvioPadrao(numeros);
         return new ValorDouble(desvioPadrao);
     }
 
@@ -28,5 +27,9 @@ public class Std extends ComandoEstatisticoAbstrato {
     @Override
     protected Tipo getTipoRetorno() {
         return TipoPrimitivo.DOUBLE;
+    }
+
+    public static double calcularDesvioPadrao(List<Double> numeros) {
+        return Math.sqrt(Variance.calcularVariancia(numeros));
     }
 }

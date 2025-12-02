@@ -1,12 +1,13 @@
 package li2.plp.imperative2.command;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import li2.plp.expressions2.expression.Id;
 import li2.plp.expressions2.expression.Valor;
 import li2.plp.expressions2.expression.ValorDouble;
 import li2.plp.expressions1.util.Tipo;
 import li2.plp.expressions1.util.TipoPrimitivo;
-import li2.plp.imperative2.util.CalculadoraEstatisticas;
 
 public class Median extends ComandoEstatisticoAbstrato {
 
@@ -16,7 +17,7 @@ public class Median extends ComandoEstatisticoAbstrato {
 
     @Override
     protected Valor calcular(List<Double> numeros) {
-        double mediana = CalculadoraEstatisticas.calcularMediana(numeros);
+        double mediana = calcularMediana(numeros);
         return new ValorDouble(mediana);
     }
 
@@ -28,5 +29,17 @@ public class Median extends ComandoEstatisticoAbstrato {
     @Override
     protected Tipo getTipoRetorno() {
         return TipoPrimitivo.DOUBLE;
+    }
+
+    public static double calcularMediana(List<Double> numeros) {
+        if (numeros.isEmpty()) return Double.NaN;
+        List<Double> sortedList = new ArrayList<>(numeros);
+        Collections.sort(sortedList);
+        int meio = sortedList.size() / 2;
+        if (sortedList.size() % 2 == 1) {
+            return sortedList.get(meio);
+        } else {
+            return (sortedList.get(meio - 1) + sortedList.get(meio)) / 2.0;
+        }
     }
 }

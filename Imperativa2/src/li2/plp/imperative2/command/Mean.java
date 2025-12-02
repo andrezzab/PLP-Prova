@@ -6,7 +6,6 @@ import li2.plp.expressions2.expression.Valor;
 import li2.plp.expressions2.expression.ValorDouble;
 import li2.plp.expressions1.util.Tipo;
 import li2.plp.expressions1.util.TipoPrimitivo;
-import li2.plp.imperative2.util.CalculadoraEstatisticas;
 
 public class Mean extends ComandoEstatisticoAbstrato {
 
@@ -16,7 +15,7 @@ public class Mean extends ComandoEstatisticoAbstrato {
 
     @Override
     protected Valor calcular(List<Double> numeros) {
-        double media = CalculadoraEstatisticas.calcularMedia(numeros);
+        double media = calcularMedia(numeros);
         return new ValorDouble(media);
     }
 
@@ -28,5 +27,14 @@ public class Mean extends ComandoEstatisticoAbstrato {
     @Override
     protected Tipo getTipoRetorno() {
         return TipoPrimitivo.DOUBLE;
+    }
+
+    public static double calcularMedia(List<Double> numeros) {
+        if (numeros.isEmpty()) return Double.NaN;
+        double soma = 0.0;
+        for (double num : numeros) {
+            soma += num;
+        }
+        return soma / numeros.size();
     }
 }

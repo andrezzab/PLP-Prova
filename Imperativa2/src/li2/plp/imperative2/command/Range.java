@@ -6,7 +6,6 @@ import li2.plp.expressions2.expression.Valor;
 import li2.plp.expressions2.expression.ValorDouble;
 import li2.plp.expressions1.util.Tipo;
 import li2.plp.expressions1.util.TipoPrimitivo;
-import li2.plp.imperative2.util.CalculadoraEstatisticas;
 
 public class Range extends ComandoEstatisticoAbstrato {
 
@@ -16,8 +15,8 @@ public class Range extends ComandoEstatisticoAbstrato {
 
     @Override
     protected Valor calcular(List<Double> numeros) {
-        double max = CalculadoraEstatisticas.calcularMaximo(numeros);
-        double min = CalculadoraEstatisticas.calcularMinimo(numeros);
+        double max = Max.calcularMaximo(numeros);
+        double min = Min.calcularMinimo(numeros);
         double amplitude = max - min;
         return new ValorDouble(amplitude);
     }

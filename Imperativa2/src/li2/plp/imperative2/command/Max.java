@@ -1,12 +1,12 @@
 package li2.plp.imperative2.command;
 
+import java.util.Collections;
 import java.util.List;
 import li2.plp.expressions2.expression.Id;
 import li2.plp.expressions2.expression.Valor;
 import li2.plp.expressions2.expression.ValorDouble;
 import li2.plp.expressions1.util.Tipo;
 import li2.plp.expressions1.util.TipoPrimitivo;
-import li2.plp.imperative2.util.CalculadoraEstatisticas;
 
 public class Max extends ComandoEstatisticoAbstrato {
 
@@ -16,7 +16,7 @@ public class Max extends ComandoEstatisticoAbstrato {
 
     @Override
     protected Valor calcular(List<Double> numeros) {
-        double maximo = CalculadoraEstatisticas.calcularMaximo(numeros);
+        double maximo = calcularMaximo(numeros);
         return new ValorDouble(maximo);
     }
 
@@ -28,5 +28,10 @@ public class Max extends ComandoEstatisticoAbstrato {
     @Override
     protected Tipo getTipoRetorno() {
         return TipoPrimitivo.DOUBLE;
+    }
+
+    public static double calcularMaximo(List<Double> numeros) {
+        if (numeros.isEmpty()) return Double.NaN;
+        return Collections.max(numeros);
     }
 }
