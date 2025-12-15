@@ -20,82 +20,111 @@ import li2.plp.imperative2.util.UtilSubstituicao;
 
 public class ChamadaProcedimento implements Comando {
 
+    // Guarda o nome da função que foi chamada (ex: "soma")
     private Id nomeProcedimento;
+    // Guarda os argumentos passados na chamada (ex: "2" e "w")
     private ListaExpressao parametrosReais;
 
+    // Construtor: Apenas recebe os dados do parser e guarda nos atributos.
     public ChamadaProcedimento(Id nomeProcedimento, ListaExpressao parametrosReais) {
         this.nomeProcedimento = nomeProcedimento;
         this.parametrosReais = parametrosReais;
     }
 
+    // --- O MÉTODO PRINCIPAL: ONDE A MÁGICA ACONTECE ---
     @Override
     public AmbienteExecucaoImperativa executar(AmbienteExecucaoImperativa amb)
             throws IdentificadorNaoDeclaradoException, IdentificadorJaDeclaradoException,
             EntradaVaziaException, ErroTipoEntradaException {
 
-		// Converte o ambiente genérico para o ambiente da Imperativa 2, que sabe lidar com procedimentos.
+        // 1. PREPARAÇÃO
+        // Faz o cast para o ambiente da Imperativa 2, que é capaz de entender procedimentos.
         AmbienteExecucaoImperativa2 ambiente = (AmbienteExecucaoImperativa2) amb;
+        
+        // Busca na memória a definição do procedimento. "Quem é 'soma'? O que ele faz?"
         DefProcedimento procedimento = ambiente.getProcedimento(nomeProcedimento);
 
+        // Cria uma nova camada na pilha de memória (escopo).
+        // Variáveis criadas aqui dentro morrem quando a função terminar.
         ambiente.incrementa();
 
-		//recupera duas listas
-		//A lista da definição (ex: int x, name int y).
+        // 2. RECUPERAÇÃO DAS LISTAS
+        // Pega a lista de parâmetros que a função espera (Formais: "int x, name int z")
         ListaDeclaracaoParametro paramsFormais = procedimento.getParametrosFormais(); 
-		//A lista do que foi passado agora (ex: 5, variavelK).
+        // Pega a lista de valores que enviamos agora (Reais: "2, w")
         ListaExpressao paramsReais = this.parametrosReais;
         
+        // Pega o corpo do código da função (ex: "{ z := x + y }")
+        // IMPORTANTE: Aqui precisaríamos clonar o comando para não estragar o original nas próximas chamadas.
         Comando comandoParaExecutar = procedimento.getComando();
 
-        // CORREÇÃO: Verifica se paramsFormais e paramsReais não são nulos antes de checkar getHead()
+        // 3. O LOOP DE PROCESSAMENTO (A PARTE DA QUESTÃO 5)
+        // Enquanto houver parâmetros nas duas listas para processar...
         while (paramsFormais != null && paramsReais != null && 
                paramsFormais.getHead() != null && paramsReais.getHead() != null) {
             
+            // Pega o par atual: (ex: Formal="x", Real="2") ou (Formal="z", Real="w")
             DeclaracaoParametro decl = paramsFormais.getHead();
             Expressao real = paramsReais.getHead();
 
+            // AQUI É A DECISÃO: É POR VALOR OU POR NOME?
             if (decl.getModo() == ModoParametro.POR_VALOR) {
-                // Passagem por Valor
-			// real.avaliar(...): Calcula o valor da expressão agora. Se for 2 + 2, vira 4.
-			// ambiente.map(...): Cria uma variável na memória local com o nome do parâmetro formal e o valor calculado.  
-            ambiente.map(decl.getId(), real.avaliar(ambiente)); 
+                // --- CAMINHO A: PASSAGEM POR VALOR ---
+                // Passo 1: Calcula o valor da expressão AGORA (Eager evaluation). 2+2 vira 4.
+                // Passo 2: Guarda na memória local o nome da variável formal com esse valor.
+                // É como tirar uma xérox do valor e guardar na gaveta.
+                ambiente.map(decl.getId(), real.avaliar(ambiente)); 
+            
             } else {
-                // Passagem por Nome
-				Id idFormal = decl.getId();
-                Id idReal = (Id) real; 
-				// Chamamos o utilitário que percorre o código do procedimento e troca textualmente 
-				// toda ocorrência de idFormal (ex: z) pelo idReal (ex: w).
-				// Efeito: O código muda antes de rodar. Onde estava escrito z := z + 1 vira w := w + 1.
+                // --- CAMINHO B: PASSAGEM POR NOME (A Novidade) ---
+                // Não calculamos nada agora.
+                // Não guardamos na memória local.
+                
+                Id idFormal = decl.getId(); // O nome usado dentro da função (ex: "z")
+                Id idReal = (Id) real;      // O nome da variável passada (ex: "w")
+                
+                // MÁGICA DA SUBSTITUIÇÃO:
+                // Pegamos o código da função e trocamos o texto.
+                // Onde estava escrito "z", apagamos e escrevemos "w".
+                // O código muda antes de ser executado.
                 comandoParaExecutar = UtilSubstituicao.substituir(comandoParaExecutar, idFormal, idReal);
             }
 
-            // Avança as listas
+            // Passa para os próximos parâmetros da lista
             paramsFormais = (ListaDeclaracaoParametro) paramsFormais.getTail();
             paramsReais = (ListaExpressao) paramsReais.getTail();
         }
 
+        // 4. EXECUÇÃO
         try {
+            // Roda o comando.
+            // Se foi por valor, ele usa as variáveis da memória local.
+            // Se foi por nome, ele roda o código alterado (com "w" no lugar de "z").
             comandoParaExecutar.executar(ambiente);
         } catch (Exception e) {
+            // Tratamento de erros obrigatório do Java
             if (e instanceof RuntimeException) throw (RuntimeException) e;
              throw new RuntimeException(e);
         }
 
+        // 5. LIMPEZA
+        // Destrói o escopo local. As variáveis criadas no .map() deixam de existir.
         ambiente.restaura();
         return ambiente;
     }
 
+    // --- VALIDAÇÃO DE TIPOS (ESTÁTICA) ---
     @Override
     public boolean checaTipo(AmbienteCompilacaoImperativa amb)
             throws IdentificadorJaDeclaradoException, IdentificadorNaoDeclaradoException {
         
-        // Validação básica existente
-		// Se a função espera (int, boolean) e você passou (string, int), 
-		// o eIgual retorna falso e o compilador dá erro antes mesmo de tentar rodar.
+        // Verifica se os tipos batem.
+        // Ex: Se a função pede (int, string), eu não posso mandar (boolean, int).
         Tipo tipoProcedimento = amb.get(this.nomeProcedimento);
         TipoProcedimento tipoParametrosReais = 
             new TipoProcedimento(parametrosReais.getTipos(amb));
             
+        // Retorna true se tudo estiver igual, false se tiver erro.
         return tipoProcedimento.eIgual(tipoParametrosReais);
     }
 }
