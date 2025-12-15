@@ -14,6 +14,8 @@ public class Write implements IO {
 		this.expressao = expressao;
 	}
 
+	public Expressao getExpressao() { return expressao; }
+
 	/**
 	 * Escreve na saida padr�o.
 	 * 

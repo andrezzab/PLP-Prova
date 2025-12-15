@@ -50,8 +50,15 @@ DeclaracaoComposta ::= Declaracao "," Declaracao
 
 DeclaracaoProcedimento ::= "proc" Id "(" [ ListaDeclaracaoParametro ] ")" "{" Comando "}"
 
-ListaDeclaracaoParametro ::= Tipo Id
-                           | Tipo Id "," ListaDeclaracaoParametro
+
+
+------------- mudanças pra prova ------------------
+ListaDeclaracaoParametro ::= Parametro | Parametro "," ListaDeclaracaoParametro
+
+Parametro ::= Tipo Id | “name” Tipo Id
+------------- mudanças pra prova ------------------
+
+
 
 Tipo ::= "string" | "int" | "boolean" | "double" | TipoDataFrame
 

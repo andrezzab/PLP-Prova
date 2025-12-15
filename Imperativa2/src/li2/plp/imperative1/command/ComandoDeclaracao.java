@@ -19,6 +19,9 @@ public class ComandoDeclaracao implements Comando {
 		this.comando = comando;
 	}
 
+	public Declaracao getDeclaracao(){ return declaracao;}
+	public Comando getComando() { return comando;}
+
 	/**
 	 * Declara a(s) vari�vel(is) e executa o comando.
 	 * 

@@ -1,97 +1,101 @@
 package li2.plp.imperative2.command;
 
 import li2.plp.expressions1.util.Tipo;
+import li2.plp.expressions2.expression.Expressao;
 import li2.plp.expressions2.expression.Id;
 import li2.plp.expressions2.memory.IdentificadorJaDeclaradoException;
 import li2.plp.expressions2.memory.IdentificadorNaoDeclaradoException;
-import li2.plp.expressions2.memory.VariavelJaDeclaradaException;
-import li2.plp.expressions2.memory.VariavelNaoDeclaradaException;
 import li2.plp.imperative1.command.Comando;
 import li2.plp.imperative1.memory.AmbienteCompilacaoImperativa;
 import li2.plp.imperative1.memory.AmbienteExecucaoImperativa;
 import li2.plp.imperative1.memory.EntradaVaziaException;
 import li2.plp.imperative1.memory.ErroTipoEntradaException;
-import li2.plp.imperative1.memory.ListaValor;
+import li2.plp.imperative2.declaration.DeclaracaoParametro;
 import li2.plp.imperative2.declaration.DefProcedimento;
 import li2.plp.imperative2.declaration.ListaDeclaracaoParametro;
 import li2.plp.imperative2.memory.AmbienteExecucaoImperativa2;
+import li2.plp.imperative2.util.ModoParametro;
 import li2.plp.imperative2.util.TipoProcedimento;
+import li2.plp.imperative2.util.UtilSubstituicao;
 
 public class ChamadaProcedimento implements Comando {
 
-	private Id nomeProcedimento;
+    private Id nomeProcedimento;
+    private ListaExpressao parametrosReais;
 
-	private ListaExpressao parametrosReais;
+    public ChamadaProcedimento(Id nomeProcedimento, ListaExpressao parametrosReais) {
+        this.nomeProcedimento = nomeProcedimento;
+        this.parametrosReais = parametrosReais;
+    }
 
-	public ChamadaProcedimento(Id nomeProcedimento,
-			ListaExpressao parametrosReais) {
-		this.nomeProcedimento = nomeProcedimento;
-		this.parametrosReais = parametrosReais;
-	}
+    @Override
+    public AmbienteExecucaoImperativa executar(AmbienteExecucaoImperativa amb)
+            throws IdentificadorNaoDeclaradoException, IdentificadorJaDeclaradoException,
+            EntradaVaziaException, ErroTipoEntradaException {
 
-	public AmbienteExecucaoImperativa executar(AmbienteExecucaoImperativa amb)
-			throws IdentificadorNaoDeclaradoException,
-			IdentificadorJaDeclaradoException, EntradaVaziaException, ErroTipoEntradaException {
-		AmbienteExecucaoImperativa2 ambiente = (AmbienteExecucaoImperativa2) amb;
-		DefProcedimento procedimento = ambiente
-				.getProcedimento(nomeProcedimento);
+		// Converte o ambiente genérico para o ambiente da Imperativa 2, que sabe lidar com procedimentos.
+        AmbienteExecucaoImperativa2 ambiente = (AmbienteExecucaoImperativa2) amb;
+        DefProcedimento procedimento = ambiente.getProcedimento(nomeProcedimento);
 
-		/*
-		 * o incrementa e o restaura neste ponto servem para criar as variveis
-		 * que serao utilizadas pela execucao do procedimento
-		 */
-		ambiente.incrementa();
-		ListaDeclaracaoParametro parametrosFormais = procedimento
-				.getParametrosFormais();
-		AmbienteExecucaoImperativa2 aux = bindParameters(ambiente,
-				parametrosFormais);
-		aux = (AmbienteExecucaoImperativa2) procedimento.getComando().executar(
-				aux);
-		aux.restaura();
-		return aux;
+        ambiente.incrementa();
 
-	}
+		//recupera duas listas
+		//A lista da definição (ex: int x, name int y).
+        ListaDeclaracaoParametro paramsFormais = procedimento.getParametrosFormais(); 
+		//A lista do que foi passado agora (ex: 5, variavelK).
+        ListaExpressao paramsReais = this.parametrosReais;
+        
+        Comando comandoParaExecutar = procedimento.getComando();
 
-	/**
-	 * insere no contexto o resultado da associacao entre cada parametro formal
-	 * e seu correspondente parametro atual
-	 */
-	private AmbienteExecucaoImperativa2 bindParameters(
-			AmbienteExecucaoImperativa2 ambiente,
-			ListaDeclaracaoParametro parametrosFormais)
-			throws VariavelJaDeclaradaException, VariavelNaoDeclaradaException {
-		ListaValor listaValor = parametrosReais.avaliar(ambiente);
-		while (listaValor.length() > 0) {
-			ambiente.map(parametrosFormais.getHead().getId(), listaValor
-					.getHead());
-			parametrosFormais = (ListaDeclaracaoParametro) parametrosFormais
-					.getTail();
-			listaValor = (ListaValor) listaValor.getTail();
-		}
-		return ambiente;
-	}
+        // CORREÇÃO: Verifica se paramsFormais e paramsReais não são nulos antes de checkar getHead()
+        while (paramsFormais != null && paramsReais != null && 
+               paramsFormais.getHead() != null && paramsReais.getHead() != null) {
+            
+            DeclaracaoParametro decl = paramsFormais.getHead();
+            Expressao real = paramsReais.getHead();
 
-	/**
-	 * Realiza a verificacao de tipos desta chamada de procedimento, onde os
-	 * tipos dos parametros formais devem ser iguais aos tipos dos parametros
-	 * reais na ordem em que se apresentam.
-	 * 
-	 * @param ambiente
-	 *            o ambiente que contem o mapeamento entre identificadores e
-	 *            tipos.
-	 * @return <code>true</code> se a chamada de procedimeno est� bem tipada;
-	 *         <code>false</code> caso contrario.
-	 */
-	public boolean checaTipo(AmbienteCompilacaoImperativa amb)
-			throws IdentificadorJaDeclaradoException,
-			IdentificadorNaoDeclaradoException {
+            if (decl.getModo() == ModoParametro.POR_VALOR) {
+                // Passagem por Valor
+			// real.avaliar(...): Calcula o valor da expressão agora. Se for 2 + 2, vira 4.
+			// ambiente.map(...): Cria uma variável na memória local com o nome do parâmetro formal e o valor calculado.  
+            ambiente.map(decl.getId(), real.avaliar(ambiente)); 
+            } else {
+                // Passagem por Nome
+				Id idFormal = decl.getId();
+                Id idReal = (Id) real; 
+				// Chamamos o utilitário que percorre o código do procedimento e troca textualmente 
+				// toda ocorrência de idFormal (ex: z) pelo idReal (ex: w).
+				// Efeito: O código muda antes de rodar. Onde estava escrito z := z + 1 vira w := w + 1.
+                comandoParaExecutar = UtilSubstituicao.substituir(comandoParaExecutar, idFormal, idReal);
+            }
 
-		Tipo tipoProcedimento = amb.get(this.nomeProcedimento);
+            // Avança as listas
+            paramsFormais = (ListaDeclaracaoParametro) paramsFormais.getTail();
+            paramsReais = (ListaExpressao) paramsReais.getTail();
+        }
 
-		TipoProcedimento tipoParametrosReais = new TipoProcedimento(
-				parametrosReais.getTipos(amb));
-		return tipoProcedimento.eIgual(tipoParametrosReais);
+        try {
+            comandoParaExecutar.executar(ambiente);
+        } catch (Exception e) {
+            if (e instanceof RuntimeException) throw (RuntimeException) e;
+             throw new RuntimeException(e);
+        }
 
-	}
+        ambiente.restaura();
+        return ambiente;
+    }
 
+    @Override
+    public boolean checaTipo(AmbienteCompilacaoImperativa amb)
+            throws IdentificadorJaDeclaradoException, IdentificadorNaoDeclaradoException {
+        
+        // Validação básica existente
+		// Se a função espera (int, boolean) e você passou (string, int), 
+		// o eIgual retorna falso e o compilador dá erro antes mesmo de tentar rodar.
+        Tipo tipoProcedimento = amb.get(this.nomeProcedimento);
+        TipoProcedimento tipoParametrosReais = 
+            new TipoProcedimento(parametrosReais.getTipos(amb));
+            
+        return tipoProcedimento.eIgual(tipoParametrosReais);
+    }
 }

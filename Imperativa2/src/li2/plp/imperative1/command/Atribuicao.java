@@ -18,6 +18,8 @@ public class Atribuicao implements Comando {
 		this.expressao = expressao;
 	}
 
+	public Id getId() { return id; }
+    public Expressao getExpressao() { return expressao; }
 	/**
 	 * Executa a atribui��o.
 	 * 

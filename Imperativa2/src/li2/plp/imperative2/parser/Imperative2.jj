@@ -17,6 +17,7 @@ import li2.plp.imperative2.*;
 import li2.plp.imperative2.command.*;
 import li2.plp.imperative2.declaration.*;
 import li2.plp.imperative2.memory.*;
+import li2.plp.imperative2.util.ModoParametro;
 import java.util.*;
 
 // Imports para as classes de Valor e Expressão que o parser vai criar
@@ -184,6 +185,7 @@ TOKEN : /* TOKENS DE IMPERATIVA 2 (MAIÚSCULAS) */
 {
   < PROC: "PROC" >
 | < CALL: "CALL" >
+| < NAME: "name" >   // <---- Adicionado pra prova
 | < LOAD: "LOAD" >
 | < AS: "AS" >
 | < MEAN: "MEAN" >
@@ -1264,23 +1266,35 @@ ListaDeclaracaoParametro PListaDeclaracaoParametro():
     Id id;
     Tipo tipo;
     ListaDeclaracaoParametro lista = null;
+    ModoParametro modo = ModoParametro.POR_VALOR; // Default
 }
 {
-    // Tornando o primeiro parâmetro não-opcional (remove [])
-    // Uma lista de parâmetros não pode começar vazia
+    // --- PRIMEIRO PARÂMETRO ---
+    
+    // Verifica opcionalmente se tem "name"
+    [ <NAME> { modo = ModoParametro.POR_NOME; } ]
+    
     tipo = PTipo() 
     id = PId() 
-    { lista = new ListaDeclaracaoParametro(new DeclaracaoParametro(id, tipo));}
+    { 
+       // Usa o construtor novo que aceita o modo
+       lista = new ListaDeclaracaoParametro(new DeclaracaoParametro(id, tipo, modo));
+    }
     
-    ( <COMMA> 
-      tipo = PTipo() id = PId() 
-      {lista = new ListaDeclaracaoParametro(new DeclaracaoParametro(id, tipo), lista);} 
+    // --- PRÓXIMOS PARÂMETROS (LOOP) ---
+    ( 
+      <COMMA> 
+      { modo = ModoParametro.POR_VALOR; } // Reseta para default a cada volta
+      [ <NAME> { modo = ModoParametro.POR_NOME; } ] // Verifica de novo
+      
+      tipo = PTipo() 
+      id = PId() 
+      {
+         lista = new ListaDeclaracaoParametro(new DeclaracaoParametro(id, tipo, modo), lista);
+      } 
     )*
     
     {
-        // if (lista == null) { // Não é mais necessário
-        //    lista = new ListaDeclaracaoParametro();
-        // }    
         return lista;
     }
 }
